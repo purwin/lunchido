@@ -105,6 +105,26 @@ function manualLocateMe(address) {
             lat: results[0].geometry.location.lat(),
             long: results[0].geometry.location.lng()
           }
+
+          // Create a marker per location, and put into markers array.
+          var marker = new google.maps.Marker({
+            position: results[0].geometry.location,
+            map: map,
+            title: "Lunch start",
+            animation: google.maps.Animation.DROP,
+          });
+          // // Create an onclick event to open the large infowindow at each marker.
+          // marker.addListener('click', function() {
+          //   populateInfoWindow(this, largeInfowindow);
+          // });
+          // // Two event listeners - one for mouseover, one for mouseout,
+          // // to change the colors back and forth.
+          // marker.addListener('mouseover', function() {
+          //   this.setIcon(highlightedIcon);
+          // });
+          // marker.addListener('mouseout', function() {
+          //   this.setIcon(defaultIcon);
+          // });
         } else {
           window.alert('Couldn’t find that location. Try being more specific.');
         }
