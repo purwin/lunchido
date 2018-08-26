@@ -8,24 +8,38 @@
   </head>
   <body>
     <div id="cold_opening">
-      <label for="start"></label><input type="text" id="start" placeholder="Enter a location!" value="">
-      <button type="button" id="locate">GO!</button>
-      <button type="button" id="geolocate">Use My Location</button>
+      <label for="start"></label><input type="text" id="start" placeholder="Enter a location!" data-bind="value: manualSearch">
+      <button type="button" id="locate" data-bind="click: manualLocater">GO!</button>
+      <button type="button" id="geolocate" data-bind="click: geoLocater">Use My Location</button>
     </div>
-    <div id="map"></div>
-    <script src="maps.js"></script>
+    <div class="display">
+      <h1 data-bind="visible: startingPoint, text: startingPoint"></h1>
+      <div class="order">
+        <button data-bind="visible: lunchList().length < 5, click: addOption">FIND LUNCH!</button>
+        <ul data-bind="foreach: lunchList">
+          <li data-bind="text: name"></li>
+        </ul>
+      </div>
+      <div class="view">
+        <div id="map">
+        </div>
+      </div>
+    </div>
+    <script src="js/knockout-3.4.2.js"></script>
+    <script src="js/maps.js"></script>
+    <script src="js/app.js"></script>
     <script>
       var locateButton = document.getElementById("geolocate");
 
-      locateButton.addEventListener("click", function(e) {
-        geolocateMe();
-      }, false);
+      // locateButton.addEventListener("click", function(e) {
+      //   geolocateMe();
+      // }, false);
 
       var locate = document.getElementById("locate");
 
-      locate.addEventListener("click", function(e) {
-        manualLocateMe(document.getElementById("start").value);
-      }, false);
+      // locate.addEventListener("click", function(e) {
+      //   manualLocateMe(document.getElementById("start").value);
+      // }, false);
     </script>
     <script async defer
     src="https://maps.googleapis.com/maps/api/js?key=AIzaSyB9tLfWcJ4O3yVu3OW9l9b9DNHO0-fLyfo&callback=initMap">
