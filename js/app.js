@@ -148,6 +148,7 @@ var ViewModel = function() {
       self.lunchList.push(lunchItem[0]);
       console.log(self.lunchList());
       addLunch(lunchItem[0]);
+      this.selectedSpot(lunchItem[0]);
     } else {
       alert("No more options for you!");
     }
