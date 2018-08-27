@@ -17,7 +17,7 @@
       <div class="order">
         <button data-bind="visible: (lunchList().length < 5 && startingPoint), click: getLunchData">FIND LUNCH!</button>
         <ul data-bind="foreach: lunchList">
-          <li data-bind="text: name, click: $parent.addOption"></li>
+          <li data-bind="text: name, click: $parent.selectedSpot, css: { 'selected': id === $parent.currentSpot() }"></li>
         </ul>
         <button data-bind="visible: (lunchSearch().length > 0 && lunchList().length < 5), click: getLunch">Give me another option!</button>
       </div>
