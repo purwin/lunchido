@@ -61,7 +61,7 @@ var ViewModel = function() {
   });
 
   // Define non-observable storage of potential lunch options
-  this.lunchSearch = [];
+  this.lunchSearch = ko.observableArray([]);
 
 // Define lunch options observable array
   this.lunchList = ko.observableArray([]);
@@ -109,6 +109,7 @@ var ViewModel = function() {
     // JSON request
     console.log("Searching " + self.startingPoint().lat.toString() + ", " + self.startingPoint().lng.toString());
     $.getJSON( fourSquareAPI, {
+      // Pull relevant data from the API
       client_id: "RGJIQWJAUURIHR1SSJUTQFKQYXL3RFO34MFEWPBBAFUALZ2B",
       client_secret: "2CA2UTR0RRAGVLIDRSUL20XK4YHY554Z0UKYYZCQ0IVLJKCA",
       ll: self.startingPoint().lat + "," + self.startingPoint().lng,
@@ -121,6 +122,7 @@ var ViewModel = function() {
     })
     .done(function(data) {
       data.response.groups[0].items.forEach(function(item) {
+        // Add found items to self.lunchSearch list
         self.lunchSearch.push({
           type: item.venue.categories[0].shortName,
           venueID: item.venue.id,
@@ -135,11 +137,12 @@ var ViewModel = function() {
       var err = textStatus + ", " + error;
       console.log( "Request Failed: " + err );
     });
-    console.log(self.lunchSearch);
+    console.log(self.lunchSearch());
   }
 
   // Function to get a lunch option, add it to observableArray
   this.getLunch = function() {
+    console.log(self.lunchSearch());
     var x = [1, 2, 3];
     console.log(x.shift());
     // this.lunchList.push(self.lunchSearch[]);
@@ -149,7 +152,6 @@ var ViewModel = function() {
     // Check item against excluded parameters
     // if so, return true
     // add item to this.lunchList
-
   }
 
 }
