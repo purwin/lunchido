@@ -13,9 +13,9 @@
       <button type="button" data-bind="click: geoLocater">Use My Location</button>
     </div>
     <div class="display">
-      <div class="display__head"><h1 class="display__h1" data-bind="visible: startingPoint, text: startingPoint"></h1></div>
+      <div class="display__head"><h1 class="display__h1" data-bind="visible: startingPoint, text: startingPoint().address"></h1></div>
       <div class="order">
-        <button data-bind="visible: lunchList().length < 5">FIND LUNCH!</button>
+        <button data-bind="visible: (lunchList().length < 5 && startingPoint), click: getLunchData">FIND LUNCH!</button>
         <ul data-bind="foreach: lunchList">
           <li data-bind="text: name, click: $parent.addOption"></li>
         </ul>
@@ -28,8 +28,8 @@
     <script src="js/knockout-3.4.2.js"></script>
     <script src="js/maps.js"></script>
     <script src="js/app.js"></script>
-    <script async defer
-    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyB9tLfWcJ4O3yVu3OW9l9b9DNHO0-fLyfo&callback=initMap">
+    <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyB9tLfWcJ4O3yVu3OW9l9b9DNHO0-fLyfo&callback=initMap">
     </script>
+    <script src="https://code.jquery.com/jquery-3.3.1.js" integrity="sha256-2Kok7MbOyxpgUVvAk/HJ2jigOSYS2auK4Pfzbm7uH60=" crossorigin="anonymous"></script>
   </body>
 </html>
