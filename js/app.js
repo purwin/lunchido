@@ -1,4 +1,4 @@
-// knockout.js file
+// Knockout.js file
 
 // model:
 //   startingPoint
@@ -11,63 +11,36 @@
 //   location: {
 //     lat: 40.7579854,
 //     lng: -73.8829541
-//   },
-//   img: "",
-//   types: ["Mexican", "Italian", "Japanese"]
-// },
-// {
-//   name: "Place 2",
-//   location: {
-//     lat: 40.7589512,
-//     lng: -73.88882869999998
-//   },
-//   img: "",
-//   types: ["Pizza"]
-// },
-// {
-//   name: "Place 3",
-//   location: {
-//     lat: 40.7478344,
-//     lng: -73.8820584
-//   },
-//   img: "",
-//   types: ["Chinese", "Peruvian"]
-// },
-// {
-//   name: "Place 4",
-//   location: {
-//     lat: 39.952588,
-//     lng: -75.16522199999981
-//   },
-//   img: "",
-//   types: ["Chinese", "Peruvian"]
-// }
+//   }
 // ];
 
 var ViewModel = function() {
 
   var self = this;
 
-  // Define lunch starting point observable
+  // Lunch starting point observable
   this.startingPoint = ko.observable({
     address: "Jackson Heights, Queens, NY, USA",
     lat: 40.7556818,
     lng: -73.8830701
   });
 
-  // Define non-observable storage of potential lunch options
+  // General exclusion parameters
+  this.excludeParams = ko.observable({
+    distance: "",
+    types: [] 
+  })
+
+  // Array of potential lunch options pulled from the FourSquare API
   this.lunchSearch = ko.observableArray([]);
 
-// Define lunch options observable array
+// Lunch options observable array (max 5)
   this.lunchList = ko.observableArray([]);
 
-  // Define manual search input
+  // Manual search input
   this.manualSearch = ko.observable();
 
-  // initialLunch.forEach(function(item) {
-  //   self.lunchList.push(item);
-  // });
-
+  // Selected lunch spot
   this.currentSpot = ko.observable();
 
   // Function to use geolocation for Google Maps starting point
@@ -97,7 +70,6 @@ var ViewModel = function() {
     self.currentSpot(selected.id);
     // Run map function to show relevant marker and info window
     selectLunch(selected);
-    console.log(self.currentSpot());
   }
 
   // Function to pull lunch options from FourSquare API
@@ -136,18 +108,20 @@ var ViewModel = function() {
       var err = textStatus + ", " + error;
       console.log( "Request Failed: " + err );
     });
-    console.log(self.lunchSearch());
   }
 
   // Function to get a lunch option, add it to observableArray
   this.getLunch = function() {
     if (self.lunchSearch().length > 0 && self.lunchList().length < 5) {
+      // Get random lunch spot from search array, remove from array
       lunchItem = self.lunchSearch.splice(Math.floor(Math.random()*self.lunchSearch().length), 1);
+      // Apply id to lunch item
       lunchItem[0].id = self.lunchList().length + 1;
-      console.log(lunchItem[0]);
+      // Add lunch spot to option list
       self.lunchList.push(lunchItem[0]);
-      console.log(self.lunchList());
+      // Run create map marker function
       addLunch(lunchItem[0]);
+      // Run select lunch spot function
       this.selectedSpot(lunchItem[0]);
     } else {
       alert("No more options for you!");
