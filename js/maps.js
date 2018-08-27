@@ -30,17 +30,13 @@
 // excludeType (empty at first)
 // maxDistance (15min at first)
 
-
-
-// Note: This example requires that you consent to location sharing when
-// prompted by your browser. If you see the error "The Geolocation service
-// failed.", it means you probably did not give permission for the browser to
-// locate you.
 var map, infoWindow, bounds;
 
 var form_addr;
 
 var startCoordinates;
+
+var markers = [];
 
 // Create map
 function initMap() {
@@ -181,6 +177,8 @@ function createMarker(position, title) {
     // label: item[id],
     animation: google.maps.Animation.DROP,
   });
+
+  markers.push(marker);
   // Add click event to display marker info window
   marker.addListener('click', function() {
     populateInfoWindow(this, infoWindow);
@@ -234,10 +232,13 @@ function addLunch(location) {
   var newMarker = createMarker(location.location, location.name);
   map.fitBounds(bounds);
   // ViewModel.lunchList.push(location);
-  console.log(initialLunch);
+  // console.log(initialLunch);
 }
 
-
+function selectLunch(location) {
+  console.log(location);
+  populateInfoWindow(markers[location.id-1], infoWindow);
+}
 
 // Adapted from Udacity https://github.com/udacity/ud864
 // This function allows the user to input a desired travel time, in
