@@ -116,7 +116,6 @@ function manualLocateMe(address) {
           // Create a marker
           var startMarker = createMarker(results[0].geometry.location, "Lunch start");
           console.log(startMarker);
-          bounds.extend(lunchCoordinates);
           // // Create an onclick event to open the large infowindow at each marker.
           // marker.addListener('click', function() {
           //   populateInfoWindow(this, largeInfowindow);
@@ -148,10 +147,8 @@ function geolocateMe() {
         lat: position.coords.latitude,
         lng: position.coords.longitude
       };
+      var startMarker = createMarker(pos, "Lunch start");
 
-      infoWindow.setPosition(pos);
-      infoWindow.setContent("Let’s start here!");
-      infoWindow.open(map);
       map.setCenter(pos);
       bounds.extend(pos);
     }, function() {
@@ -186,7 +183,6 @@ function createMarker(position, title) {
   });
 
   bounds.extend(marker.position);
-  map.fitBounds(bounds);
   return marker;
 }
 
@@ -210,18 +206,8 @@ function populateInfoWindow(marker, infowindow) {
 function addLunch(location) {
   console.log(location.location);
   var newMarker = createMarker(location.location, location.name);
+  map.fitBounds(bounds);
 }
-
-
-// This function adjusts bounds of map view when adding new markers
-// function updateBounds() {
-//   // Extend the boundaries of the map for each marker and display the marker
-//   for (var i = 0; i < markers.length; i++) {
-//     markers[i].setMap(map);
-//     bounds.extend(markers[i].position);
-//   }
-//   map.fitBounds(bounds);
-// }
 
 
 // Adapted from Udacity https://github.com/udacity/ud864
