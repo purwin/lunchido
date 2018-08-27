@@ -19,6 +19,7 @@
         <ul data-bind="foreach: lunchList">
           <li data-bind="text: name, click: $parent.addOption"></li>
         </ul>
+        <button data-bind="visible: (lunchSearch().length > 0 && lunchList().length < 5), click: getLunch">Give me another option!</button>
       </div>
       <div class="view" data-bind="">
         <div id="map">
