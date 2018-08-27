@@ -5,49 +5,44 @@
 //   lunchOptions
 //   savedPlaces
 //   searchParams
-initialLunch = [
-{
-  name: "Place 1",
-  location: {
-    lat: 40.7579854,
-    lng: -73.8829541
-  },
-  img: "",
-  types: ["Mexican", "Italian", "Japanese"]
-},
-{
-  name: "Place 2",
-  location: {
-    lat: 40.7589512,
-    lng: -73.88882869999998
-  },
-  img: "",
-  types: ["Pizza"]
-},
-{
-  name: "Place 3",
-  location: {
-    lat: 40.7478344,
-    lng: -73.8820584
-  },
-  img: "",
-  types: ["Chinese", "Peruvian"]
-},
-{
-  name: "Place 4",
-  location: {
-    lat: 39.952588,
-    lng: -75.16522199999981
-  },
-  img: "",
-  types: ["Chinese", "Peruvian"]
-}
-];
-
-
-// viewmodel:
-//   add new list item to page
-//   add new list item to savedPlaces
+// initialLunch = [
+// {
+//   name: "Place 1",
+//   location: {
+//     lat: 40.7579854,
+//     lng: -73.8829541
+//   },
+//   img: "",
+//   types: ["Mexican", "Italian", "Japanese"]
+// },
+// {
+//   name: "Place 2",
+//   location: {
+//     lat: 40.7589512,
+//     lng: -73.88882869999998
+//   },
+//   img: "",
+//   types: ["Pizza"]
+// },
+// {
+//   name: "Place 3",
+//   location: {
+//     lat: 40.7478344,
+//     lng: -73.8820584
+//   },
+//   img: "",
+//   types: ["Chinese", "Peruvian"]
+// },
+// {
+//   name: "Place 4",
+//   location: {
+//     lat: 39.952588,
+//     lng: -75.16522199999981
+//   },
+//   img: "",
+//   types: ["Chinese", "Peruvian"]
+// }
+// ];
 
 var ViewModel = function() {
 
@@ -73,7 +68,7 @@ var ViewModel = function() {
   //   self.lunchList.push(item);
   // });
 
-  this.selectedSpot = ko.observable(this.lunchList()[0]);
+  this.currentSpot = ko.observable();
 
   // Function to use geolocation for Google Maps starting point
   this.geoLocater = function() {
@@ -99,8 +94,10 @@ var ViewModel = function() {
   // Function to highlight selected lunch option in list, show location on the map
   this.selectedSpot = function(selected) {
     // set current lunch item to clicked item
-    self.currentSpot(selected);
+    self.currentSpot(selected.id);
     // Run map function to show relevant marker and info window
+    selectLunch(selected);
+    console.log(self.currentSpot());
   }
 
   // Function to pull lunch options from FourSquare API
@@ -146,6 +143,8 @@ var ViewModel = function() {
   this.getLunch = function() {
     if (self.lunchSearch().length > 0 && self.lunchList().length < 5) {
       lunchItem = self.lunchSearch.splice(Math.floor(Math.random()*self.lunchSearch().length), 1);
+      lunchItem[0].id = self.lunchList().length + 1;
+      console.log(lunchItem[0]);
       self.lunchList.push(lunchItem[0]);
       console.log(self.lunchList());
       addLunch(lunchItem[0]);
