@@ -40,6 +40,8 @@ var map, infoWindow, bounds;
 
 var form_addr;
 
+var startCoordinates;
+
 // Create map
 function initMap() {
   var styles = [
@@ -79,6 +81,7 @@ function initMap() {
     }
   ];
 
+  // Define map
   map = new google.maps.Map(document.getElementById("map"), {
     center: {lat: 39.952583, lng: -75.165222},
     zoom: 15,
@@ -87,6 +90,7 @@ function initMap() {
   });
   bounds = new google.maps.LatLngBounds();
 
+  // Define InfoWindow
   infoWindow = new google.maps.InfoWindow;
 }
 
@@ -107,30 +111,20 @@ function manualLocateMe(address) {
           map.setCenter(results[0].geometry.location);
           map.setZoom(15);
           // Store lat/lng coordinates
-          var lunchCoordinates = {
+          startCoordinates = {
             lat: results[0].geometry.location.lat(),
             long: results[0].geometry.location.lng()
           }
-          console.log(lunchCoordinates);
+          // Store address name
+          startCoordinates.address = results[0].formatted_address;
+          console.log(startCoordinates.address);
+          console.log(startCoordinates);
+
+          // Return startCoordinates
+          return startCoordinates;
 
           // Create a marker
           var startMarker = createMarker(results[0].geometry.location, "Lunch start");
-          console.log(startMarker);
-          // // Create an onclick event to open the large infowindow at each marker.
-          // marker.addListener('click', function() {
-          //   populateInfoWindow(this, largeInfowindow);
-          // });
-          // // Two event listeners - one for mouseover, one for mouseout,
-          // // to change the colors back and forth.
-          // marker.addListener('mouseover', function() {
-          //   this.setIcon(highlightedIcon);
-          // });
-          // marker.addListener('mouseout', function() {
-          //   this.setIcon(defaultIcon);
-          // });
-          form_addr = results[0].formatted_address;
-          console.log(form_addr);
-          return "HEY!";
         } else {
           window.alert("Couldn’t find that location. Try being more specific.");
         }
@@ -171,19 +165,51 @@ function handleLocationError(browserHasGeolocation, infoWindow, pos) {
 
 // Function: Create a marker, add click events, re-fit the map based on the added markers, and add marker to the map
 function createMarker(position, title) {
+  // Style the markers a bit. This will be our listing marker icon.
+  var defaultIcon = makeMarkerIcon('0091ff');
+
+  // Create a "highlighted location" marker color for when the user
+  // mouses over the marker.
+  var highlightedIcon = makeMarkerIcon('FFFF24');
+
+  // Create new marker
   var marker = new google.maps.Marker({
     position: position,
     map: map,
     title: title,
+    icon: defaultIcon,
+    // label: item[id],
     animation: google.maps.Animation.DROP,
   });
   // Add click event to display marker info window
   marker.addListener('click', function() {
     populateInfoWindow(this, infoWindow);
   });
+  // Two event listeners - one for mouseover, one for mouseout,
+  // to change the colors back and forth.
+  marker.addListener('mouseover', function() {
+    this.setIcon(highlightedIcon);
+  });
+  marker.addListener('mouseout', function() {
+    this.setIcon(defaultIcon);
+  });
 
   bounds.extend(marker.position);
   return marker;
+}
+
+// This function takes in a COLOR, and then creates a new marker
+// icon of that color. The icon will be 21 px wide by 34 high, have an origin
+// of 0, 0 and be anchored at 10, 34).
+function makeMarkerIcon(markerColor) {
+  var markerImage = new google.maps.MarkerImage(
+    'http://chart.googleapis.com/chart?chst=d_map_spin&chld=1.15|0|'+ markerColor +
+    '|40|_|%E2%80%A2',
+    new google.maps.Size(21, 34),
+    new google.maps.Point(0, 0),
+    new google.maps.Point(10, 34),
+    new google.maps.Size(21,34));
+  return markerImage;
 }
 
 // This function populates the infowindow when the marker is clicked. We'll only allow
@@ -207,8 +233,9 @@ function addLunch(location) {
   console.log(location.location);
   var newMarker = createMarker(location.location, location.name);
   map.fitBounds(bounds);
+  // ViewModel.lunchList.push(location);
+  console.log(initialLunch);
 }
-
 
 // Adapted from Udacity https://github.com/udacity/ud864
 // This function allows the user to input a desired travel time, in
