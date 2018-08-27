@@ -103,6 +103,7 @@ var ViewModel = function() {
           shortAddress: item.venue.location.address
           });
       });
+      self.getLunch();
     })
     .fail(function(jqxhr, textStatus, error) {
       var err = textStatus + ", " + error;
@@ -122,7 +123,7 @@ var ViewModel = function() {
       // Run create map marker function
       addLunch(lunchItem[0]);
       // Run select lunch spot function
-      this.selectedSpot(lunchItem[0]);
+      self.selectedSpot(lunchItem[0]);
     } else {
       alert("No more options for you!");
     }
