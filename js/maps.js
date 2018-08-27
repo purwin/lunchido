@@ -166,11 +166,11 @@ function handleLocationError(browserHasGeolocation, infoWindow, pos) {
 // Function: Create a marker, add click events, re-fit the map based on the added markers, and add marker to the map
 function createMarker(position, title) {
   // Style the markers a bit. This will be our listing marker icon.
-  var defaultIcon = makeMarkerIcon('0091ff');
+  var defaultIcon = makeMarkerIcon('f3a683');
 
   // Create a "highlighted location" marker color for when the user
   // mouses over the marker.
-  var highlightedIcon = makeMarkerIcon('FFFF24');
+  var highlightedIcon = makeMarkerIcon('f19066');
 
   // Create new marker
   var marker = new google.maps.Marker({
@@ -228,7 +228,7 @@ function populateInfoWindow(marker, infowindow) {
   }
 }
 
-
+// This function creates and adds a lunch spot marker to the map
 function addLunch(location) {
   console.log(location.location);
   var newMarker = createMarker(location.location, location.name);
@@ -236,6 +236,8 @@ function addLunch(location) {
   // ViewModel.lunchList.push(location);
   console.log(initialLunch);
 }
+
+
 
 // Adapted from Udacity https://github.com/udacity/ud864
 // This function allows the user to input a desired travel time, in
