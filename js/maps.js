@@ -36,8 +36,11 @@
 // prompted by your browser. If you see the error "The Geolocation service
 // failed.", it means you probably did not give permission for the browser to
 // locate you.
-var map, infoWindow;
+var map, infoWindow, bounds;
 
+var form_addr;
+
+// Create map
 function initMap() {
   var styles = [
     {
@@ -76,21 +79,24 @@ function initMap() {
     }
   ];
 
-  map = new google.maps.Map(document.getElementById('map'), {
+  map = new google.maps.Map(document.getElementById("map"), {
     center: {lat: 39.952583, lng: -75.165222},
     zoom: 15,
     mapTypeControl: false,
     styles: styles
   });
+  bounds = new google.maps.LatLngBounds();
+
   infoWindow = new google.maps.InfoWindow;
 }
 
+// Set map based on text input
 function manualLocateMe(address) {
   // Initialize the geocoder.
   var geocoder = new google.maps.Geocoder();
   // Make sure the address isn't blank.
   if (address == '') {
-    window.alert('You gotta enter an address or location!');
+    window.alert("You gotta enter an address or location!");
   } else {
     // Geocode the address/area entered to get the center. Then, center the map
     // on it and zoom in
@@ -105,14 +111,12 @@ function manualLocateMe(address) {
             lat: results[0].geometry.location.lat(),
             long: results[0].geometry.location.lng()
           }
+          console.log(lunchCoordinates);
 
-          // Create a marker per location, and put into markers array.
-          var marker = new google.maps.Marker({
-            position: results[0].geometry.location,
-            map: map,
-            title: "Lunch start",
-            animation: google.maps.Animation.DROP,
-          });
+          // Create a marker
+          var startMarker = createMarker(results[0].geometry.location, "Lunch start");
+          console.log(startMarker);
+          bounds.extend(lunchCoordinates);
           // // Create an onclick event to open the large infowindow at each marker.
           // marker.addListener('click', function() {
           //   populateInfoWindow(this, largeInfowindow);
@@ -125,13 +129,17 @@ function manualLocateMe(address) {
           // marker.addListener('mouseout', function() {
           //   this.setIcon(defaultIcon);
           // });
+          form_addr = results[0].formatted_address;
+          console.log(form_addr);
+          return "HEY!";
         } else {
-          window.alert('Couldn’t find that location. Try being more specific.');
+          window.alert("Couldn’t find that location. Try being more specific.");
         }
       });
   }
 }
 
+// Function: Set map based on geolocation
 function geolocateMe() {
   // Try HTML5 geolocation.
   if (navigator.geolocation) {
@@ -142,12 +150,14 @@ function geolocateMe() {
       };
 
       infoWindow.setPosition(pos);
-      infoWindow.setContent('Let’s work from here!');
+      infoWindow.setContent("Let’s start here!");
       infoWindow.open(map);
       map.setCenter(pos);
+      bounds.extend(pos);
     }, function() {
       handleLocationError(true, infoWindow, map.getCenter());
     });
+    return map.getCenter();
   } else {
     // Browser doesn't support Geolocation
     handleLocationError(false, infoWindow, map.getCenter());
@@ -157,11 +167,61 @@ function geolocateMe() {
 function handleLocationError(browserHasGeolocation, infoWindow, pos) {
   infoWindow.setPosition(pos);
   infoWindow.setContent(browserHasGeolocation ?
-                        'Error: The Geolocation service failed.' :
-                        'Error: Your browser doesn\'t support geolocation.');
+                        "Error: The Geolocation service failed." :
+                        "Error: Your browser doesn’t support geolocation.");
   infoWindow.open(map);
 }
 
+// Function: Create a marker, add click events, re-fit the map based on the added markers, and add marker to the map
+function createMarker(position, title) {
+  var marker = new google.maps.Marker({
+    position: position,
+    map: map,
+    title: title,
+    animation: google.maps.Animation.DROP,
+  });
+  // Add click event to display marker info window
+  marker.addListener('click', function() {
+    populateInfoWindow(this, infoWindow);
+  });
+
+  bounds.extend(marker.position);
+  map.fitBounds(bounds);
+  return marker;
+}
+
+// This function populates the infowindow when the marker is clicked. We'll only allow
+// one infowindow which will open at the marker that is clicked, and populate based
+// on that markers position.
+function populateInfoWindow(marker, infowindow) {
+  // Check to make sure the infowindow is not already opened on this marker.
+  if (infowindow.marker != marker) {
+    infowindow.marker = marker;
+    infowindow.setContent('<div>' + marker.title + '</div>');
+    infowindow.open(map, marker);
+    // Make sure the marker property is cleared if the infowindow is closed.
+    infowindow.addListener('closeclick',function(){
+      infowindow.setMarker = null;
+    });
+  }
+}
+
+
+function addLunch(location) {
+  console.log(location.location);
+  var newMarker = createMarker(location.location, location.name);
+}
+
+
+// This function adjusts bounds of map view when adding new markers
+// function updateBounds() {
+//   // Extend the boundaries of the map for each marker and display the marker
+//   for (var i = 0; i < markers.length; i++) {
+//     markers[i].setMap(map);
+//     bounds.extend(markers[i].position);
+//   }
+//   map.fitBounds(bounds);
+// }
 
 
 // Adapted from Udacity https://github.com/udacity/ud864
@@ -171,10 +231,10 @@ function handleLocationError(browserHasGeolocation, infoWindow, pos) {
 function searchWithinTime() {
   // Initialize the distance matrix service.
   var distanceMatrixService = new google.maps.DistanceMatrixService;
-  var address = document.getElementById('search-within-time-text').value;
+  var address = document.getElementById("search-within-time-text").value;
   // Check to make sure the place entered isn't blank.
-  if (address == '') {
-    window.alert('You must enter an address.');
+  if (address == "") {
+    window.alert("You must enter an address.");
   } else {
     hideListings();
     // Use the distance matrix service to calculate the duration of the
@@ -185,7 +245,7 @@ function searchWithinTime() {
       origins[i] = markers[i].position;
     }
     var destination = address;
-    var mode = document.getElementById('mode').value;
+    var mode = document.getElementById("mode").value;
     // Now that both the origins and destination are defined, get all the
     // info for the distances between them.
     distanceMatrixService.getDistanceMatrix({
@@ -195,7 +255,7 @@ function searchWithinTime() {
       unitSystem: google.maps.UnitSystem.IMPERIAL,
     }, function(response, status) {
       if (status !== google.maps.DistanceMatrixStatus.OK) {
-        window.alert('Error was: ' + status);
+        window.alert("Error: " + status);
       } else {
         displayMarkersWithinTime(response);
       }
