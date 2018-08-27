@@ -69,9 +69,9 @@ var ViewModel = function() {
   // Define manual search input
   this.manualSearch = ko.observable();
 
-  initialLunch.forEach(function(item) {
-    self.lunchList.push(item);
-  });
+  // initialLunch.forEach(function(item) {
+  //   self.lunchList.push(item);
+  // });
 
   this.selectedSpot = ko.observable(this.lunchList()[0]);
 
@@ -126,8 +126,10 @@ var ViewModel = function() {
         self.lunchSearch.push({
           type: item.venue.categories[0].shortName,
           venueID: item.venue.id,
-          lat: item.venue.location.lat,
-          lng: item.venue.location.lng,
+          location: {
+            lat: item.venue.location.lat,
+            lng: item.venue.location.lng,
+          },
           name: item.venue.name,
           shortAddress: item.venue.location.address
           });
@@ -142,9 +144,14 @@ var ViewModel = function() {
 
   // Function to get a lunch option, add it to observableArray
   this.getLunch = function() {
-    console.log(self.lunchSearch());
-    var x = [1, 2, 3];
-    console.log(x.shift());
+    if (self.lunchSearch().length > 0 && self.lunchList().length < 5) {
+      lunchItem = self.lunchSearch.splice(Math.floor(Math.random()*self.lunchSearch().length), 1);
+      self.lunchList.push(lunchItem[0]);
+      console.log(self.lunchList());
+      addLunch(lunchItem[0]);
+    } else {
+      alert("No more options for you!");
+    }
     // this.lunchList.push(self.lunchSearch[]);
     // if this.lunchList().length < 5...
     // while false:
