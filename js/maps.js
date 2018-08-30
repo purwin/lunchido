@@ -105,7 +105,7 @@ function manualLocateMe(address, callback) {
           // Store lat/lng coordinates
           var coords = {
             lat: results[0].geometry.location.lat(),
-            long: results[0].geometry.location.lng()
+            lng: results[0].geometry.location.lng()
           }
           // Store address name
           coords.address = results[0].formatted_address;
