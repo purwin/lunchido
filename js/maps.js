@@ -254,7 +254,7 @@ function addLunch(location) {
 }
 
 function selectLunch(location) {
-  populateInfoWindow(markers[location.id-1], infoWindow);
+  populateInfoWindow(markers[location.id], infoWindow);
   // markers[location.id-1].setIcon(highlightedIcon);
 }
 
