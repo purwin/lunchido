@@ -40,14 +40,16 @@ var ViewModel = function() {
 
   // Function to use geolocation for Google Maps starting point
   this.geoLocater = function() {
-    var x = geolocateMe();
-    console.log("GEOLOCATE RETURN: " + x);
-    self.startingPoint(x);
+    // Get lat, lng, and address from Google Maps geolocate function
+    var x = geolocateMe(function(data) {
+      // Set starting point details to returned object
+      self.startingPoint(data);
+    });
   }
 
   // Function to manually search for Google Maps starting point
   this.manualLocater = function() {
-    // Get lat, lng, and from Google Maps function
+    // Get lat, lng, and address from Google Maps manual locate function
     var x = manualLocateMe(this.manualSearch(), function(data) {
       // Set starting point details to returned object
       self.startingPoint(data);
@@ -74,7 +76,7 @@ var ViewModel = function() {
   // Function to pull lunch options from FourSquare API
   this.getLunchData = function() {
     // JSON request
-    console.log("Searching " + self.startingPoint().lat.toString() + ", " + self.startingPoint().lng.toString());
+    console.log("Searching " + self.startingPoint().lat + ", " + self.startingPoint().lng);
     $.getJSON( self.fourSquareAPI.url + "explore", {
       // Pull relevant data from the API
       client_id: self.fourSquareAPI.client_id,
