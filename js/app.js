@@ -66,7 +66,7 @@ var ViewModel = function() {
   this.selectSpot = function(selected) {
     // set current lunch item to clicked item
     self.currentSpot(selected);
-    console.log("currentSpot: " + selected);
+    console.dir("currentSpot: " + selected);
     console.log("currentSpot ID: " + self.currentSpot().id);
     console.log("currentSpot price: " + self.currentSpot().price);
     // Run map function to show relevant marker and info window
@@ -92,6 +92,7 @@ var ViewModel = function() {
     .done(function(data) {
       data.response.groups[0].items.forEach(function(item) {
         // Add found items to self.lunchSearch list
+        console.log(item.venue.name);
         self.lunchSearch.push({
           type: item.venue.categories[0].shortName,
           venueID: item.venue.id,
@@ -131,6 +132,12 @@ var ViewModel = function() {
         try {
           // Pull price data from the API, add to object
           lunchItem[0].price = data.response.venue.price.tier;
+          // Add lunch spot to option list
+          self.lunchList.push(lunchItem[0]);
+          // Run create map marker function
+          addLunch(lunchItem[0]);
+          // Run select lunch spot function
+          self.selectSpot(lunchItem[0]);
         }
         catch(error) {
           console.log(error);
@@ -140,12 +147,6 @@ var ViewModel = function() {
         var err = textStatus + ", " + error;
         console.log( "Request Failed: " + err );
       });
-      // Add lunch spot to option list
-      self.lunchList.push(lunchItem[0]);
-      // Run create map marker function
-      addLunch(lunchItem[0]);
-      // Run select lunch spot function
-      self.selectSpot(lunchItem[0]);
     } else {
       alert("No more options for you!");
     }
