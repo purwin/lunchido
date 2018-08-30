@@ -123,7 +123,7 @@ function manualLocateMe(address, callback) {
 }
 
 // Function: Set map based on geolocation
-function geolocateMe() {
+function geolocateMe(callback) {
   // Try HTML5 geolocation.
   if (navigator.geolocation) {
     navigator.geolocation.getCurrentPosition(function(position) {
@@ -134,11 +134,22 @@ function geolocateMe() {
       var startMarker = createMarker(pos, "Lunch start");
 
       map.setCenter(pos);
-      bounds.extend(pos);
+      // bounds.extend(pos);
+
+      // Call geocodeLatLng function to get formatted address
+      var geocoder = new google.maps.Geocoder();
+      var x = geocodeLatLng(pos, geocoder, function(data) {
+
+        // Get formatted address
+        pos.address = data;
+
+        // Return coordinates and formatted address with callback
+        callback(pos);
+      });
+
     }, function() {
       handleLocationError(true, infoWindow, map.getCenter());
     });
-    return map.getCenter();
   } else {
     // Browser doesn't support Geolocation
     handleLocationError(false, infoWindow, map.getCenter());
@@ -152,6 +163,20 @@ function handleLocationError(browserHasGeolocation, infoWindow, pos) {
                         "Error: Your browser doesn’t support geolocation.");
   infoWindow.open(map);
 }
+
+// Get formatted_address for geolocation
+function geocodeLatLng(pos, geocoder, callback) {
+  geocoder.geocode(
+    { 'location': pos,
+    }, function(results, status) {
+    if (status === 'OK') {
+        callback(results[0].formatted_address);
+    } else {
+      window.alert('Geocoder failed due to: ' + status);
+    }
+  });
+}
+
 
 // Function: Create a marker, add click events, re-fit the map based on the added markers, and add marker to the map
 function createMarker(position, title) {
