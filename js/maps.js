@@ -32,10 +32,6 @@
 
 var map, infoWindow, bounds;
 
-var form_addr;
-
-var startCoordinates;
-
 var markers = [];
 
 // Create map
@@ -90,8 +86,8 @@ function initMap() {
   infoWindow = new google.maps.InfoWindow;
 }
 
-// Set map based on text input
-function manualLocateMe(address) {
+// Set map based on text input, return lat, lng, and formatted_address as a callback
+function manualLocateMe(address, callback) {
   // Initialize the geocoder.
   var geocoder = new google.maps.Geocoder();
   // Make sure the address isn't blank.
@@ -107,17 +103,15 @@ function manualLocateMe(address) {
           map.setCenter(results[0].geometry.location);
           map.setZoom(15);
           // Store lat/lng coordinates
-          startCoordinates = {
+          var coords = {
             lat: results[0].geometry.location.lat(),
             long: results[0].geometry.location.lng()
           }
           // Store address name
-          startCoordinates.address = results[0].formatted_address;
-          console.log(startCoordinates.address);
-          console.log(startCoordinates);
+          coords.address = results[0].formatted_address;
 
-          // Return startCoordinates
-          return startCoordinates;
+          // Return coordinates
+          callback(coords);
 
           // Create a marker
           var startMarker = createMarker(results[0].geometry.location, "Lunch start");
@@ -228,7 +222,6 @@ function populateInfoWindow(marker, infowindow) {
 
 // This function creates and adds a lunch spot marker to the map
 function addLunch(location) {
-  console.log(location.location);
   var newMarker = createMarker(location.location, location.name);
   map.fitBounds(bounds);
   // ViewModel.lunchList.push(location);
@@ -236,8 +229,8 @@ function addLunch(location) {
 }
 
 function selectLunch(location) {
-  console.log(location);
   populateInfoWindow(markers[location.id-1], infoWindow);
+  // markers[location.id-1].setIcon(highlightedIcon);
 }
 
 // Adapted from Udacity https://github.com/udacity/ud864
