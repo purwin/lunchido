@@ -47,10 +47,11 @@ var ViewModel = function() {
 
   // Function to manually search for Google Maps starting point
   this.manualLocater = function() {
-    console.log(this.manualSearch());
-    var x = manualLocateMe(this.manualSearch());
-    console.log("MANUAL RETURN: " + x);
-    this.startingPoint(x);
+    // Get lat, lng, and from Google Maps function
+    var x = manualLocateMe(this.manualSearch(), function(data) {
+      // Set starting point details to returned object
+      self.startingPoint(data);
+    });
   }
 
   // Function to add new lunch option
