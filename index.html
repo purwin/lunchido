@@ -19,7 +19,7 @@
       <div class="order">
         <button data-bind="visible: (lunchList().length < 5 && startingPoint), click: getLunchData">FIND LUNCH!</button>
         <ul data-bind="foreach: lunchList">
-          <li data-bind="text: name, click: $parent.selectSpot, css: { 'selected': $parent.currentSpot.id > 0}"></li>
+          <li data-bind="text: name, click: $parent.selectSpot, css: { 'selected': $parent.currentSpot() === $data }"></li>
         </ul>
         <div class="params" data-bind="with: currentSpot()">
           <button data-bind="click: $parent.updatePrice">Too pricy!</button>
