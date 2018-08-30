@@ -13,13 +13,18 @@
       <button type="button" data-bind="click: geoLocater">Use My Location</button>
     </div>
     <div class="display">
-      <div class="display__head"><h1 class="display__h1" data-bind="visible: startingPoint, text: startingPoint().address"></h1></div>
+      <div class="display__head">
+        <h1 class="display__h1" data-bind="visible: startingPoint, text: startingPoint().address"></h1>
+      </div>
       <div class="order">
         <button data-bind="visible: (lunchList().length < 5 && startingPoint), click: getLunchData">FIND LUNCH!</button>
         <ul data-bind="foreach: lunchList">
-          <li data-bind="text: name, click: $parent.selectedSpot, css: { 'selected': id === $parent.currentSpot() }"></li>
+          <li data-bind="text: name, click: $parent.selectSpot, css: { 'selected': $parent.currentSpot.id > 0}"></li>
         </ul>
-        <button data-bind="visible: (lunchSearch().length > 0 && lunchList().length < 5), click: getLunch">Give me another option!</button>
+        <div class="params" data-bind="with: currentSpot()">
+          <button data-bind="click: $parent.updatePrice">Too pricy!</button>
+          <button data-bind="click: $parent.updateType">Something other than <span data-bind="text: type"></span></button>
+        </div>
       </div>
       <div class="view" data-bind="">
         <div id="map">
