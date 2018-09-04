@@ -66,9 +66,6 @@ var ViewModel = function() {
   this.selectSpot = function(selected) {
     // set current lunch item to clicked item
     self.currentSpot(selected);
-    console.dir("currentSpot: " + selected);
-    console.log("currentSpot ID: " + self.currentSpot().id);
-    console.log("currentSpot price: " + self.currentSpot().price);
     // Run map function to show relevant marker and info window
     selectLunch(selected);
   }
@@ -92,7 +89,6 @@ var ViewModel = function() {
     .done(function(data) {
       data.response.groups[0].items.forEach(function(item) {
         // Add found items to self.lunchSearch list
-        console.log(item.venue.name);
         self.lunchSearch.push({
           type: item.venue.categories[0].shortName,
           venueID: item.venue.id,
@@ -101,8 +97,8 @@ var ViewModel = function() {
             lng: item.venue.location.lng,
           },
           name: item.venue.name,
-          shortAddress: item.venue.location.address,
-          price: null
+          shortAddress: item.venue.location.address
+          // price: null
           });
       });
       self.getLunch();
@@ -115,62 +111,88 @@ var ViewModel = function() {
 
   // Function to scrape a lunch option, add it to observableArray
   this.getLunch = function() {
+    // Run function if user has places to choose from and < 5 options
     if (self.lunchSearch().length > 0 && self.lunchList().length < 5) {
-      // Get random lunch spot from search array, remove from array
-      lunchItem = self.lunchSearch.splice(Math.floor(Math.random()*self.lunchSearch().length), 1);
+
+      do {
+        // Loop: Pop lunch spots off data list while food type is in exclusion list
+        // do {
+          // Get random lunch spot from search array, remove from array
+          lunchItem = self.lunchSearch.splice(Math.floor(Math.random()*self.lunchSearch().length), 1)[0];
+          console.log("LUNCH ITEM: " + JSON.stringify(lunchItem));
+          console.log("LUNCH TYPE: " + lunchItem.type);
+        // } while (self.excludeParams().types.indexOf(lunchItem.type) >= 0 );
+
+        // Get price parameter from FourSquare API
+        $.getJSON(self.fourSquareAPI.url + lunchItem.venueID, {
+          // Query FourSquare API to get venue info (price)
+          client_id: self.fourSquareAPI.client_id,
+          client_secret: self.fourSquareAPI.client_secret,
+          v: '20180827',
+          format: "json"
+        })
+        .done(function(data) {
+          try {
+            // Pull price data from the API, add to object
+            lunchItem.price = data.response.venue.price.tier;
+            console.log("Newest item to add: " + JSON.stringify(lunchItem));
+          }
+          catch(error) {
+            console.log(error);
+          }
+        })
+        .fail(function(jqxhr, textStatus, error) {
+          var err = textStatus + ", " + error;
+          console.log( "Request Failed: " + err );
+        });
+      } while ((parseInt(lunchItem.price) <= parseInt(self.excludeParams().price)) && (self.excludeParams().types.indexOf(lunchItem.type) >= 0));
+      console.log("And this happens.");
       // Apply id to lunch item
-      lunchItem[0].id = self.lunchList().length + 1;
-      // Get price parameter from FourSquare API
-      $.getJSON( self.fourSquareAPI.url + lunchItem[0].venueID, {
-        // Query FourSquare API to get venue info (price)
-        client_id: self.fourSquareAPI.client_id,
-        client_secret: self.fourSquareAPI.client_secret,
-        v: '20180827',
-        format: "json"
-      })
-      .done(function(data) {
-        try {
-          // Pull price data from the API, add to object
-          lunchItem[0].price = data.response.venue.price.tier;
-          // Add lunch spot to option list
-          self.lunchList.push(lunchItem[0]);
-          // Run create map marker function
-          addLunch(lunchItem[0]);
-          // Run select lunch spot function
-          self.selectSpot(lunchItem[0]);
-        }
-        catch(error) {
-          console.log(error);
-        }
-      })
-      .fail(function(jqxhr, textStatus, error) {
-        var err = textStatus + ", " + error;
-        console.log( "Request Failed: " + err );
-      });
-    } else {
-      alert("No more options for you!");
+      lunchItem.id = self.lunchList().length + 1;
+      // Add lunch spot to option list
+      self.lunchList.push(lunchItem);
+      // Run create map marker function
+      addLunch(lunchItem);
+      // Run select lunch spot function
+      self.selectSpot(lunchItem);
     }
-    // this.lunchList.push(self.lunchSearch[]);
-    // if this.lunchList().length < 5...
-    // while false:
-    // get random item from getLunchData, pop item
-    // Check item against excluded parameters
-    // if so, return true
-    // add item to this.lunchList
+
+    // Notify user if no there are no nearby places left
+    else if (self.lunchSearch().length == 0) {
+    window.alert("Your area is all out of options! Choose from the options presented.");
+
+    // Notify user if they maxed-out their options
+    } else {
+      window.alert("No more options for you!");
+    }
+
   }
 
   this.updatePrice = function(selected) {
-    if (self.excludeParams().price <= selected.price){
-
+    // if selected place's price is lower than the current max price parameter, update max price
+    if(self.excludeParams().price <= 1 || selected.price <= 1) {
+      window.alert("That's as low as we can go! We'll search for another cheap place for you.");
     }
-    console.log("New price: " + self.excludeParams().price);
+    else if (self.excludeParams().price > selected.price){
+      self.excludeParams().price = parseInt(selected.price) - 1;
+      console.log("New max price: " + self.excludeParams().price);
+      // run getLunch function to get a new option with updated parameters
+    } else {
+      window.alert("The current max price is lower than this place! Leaving this be.");
+    }
     // console.log(self.lunchList()[self.lunchList().length-1]);
+    self.getLunch();
   }
 
   this.updateType = function(selected) {
+    // if selected place's food type is not yet on the exlusions list, add it
     if (!self.excludeParams().types.includes(selected.type)) {
       self.excludeParams().types.push(selected.type);
-      console.log(self.excludeParams().types);
+      console.log("Updated food types to exclude: " + self.excludeParams().types);
+      // run getLunch function to get a new option with updated parameters
+      self.getLunch();
+    } else {
+      window.alert("We got you covered! Already exlcluding " + selected.type + " food options.");
     }
   }
 
