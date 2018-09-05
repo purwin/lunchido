@@ -57,12 +57,6 @@ var ViewModel = function() {
     });
   }
 
-  // Function to add new lunch option
-  this.addOption = function(selected) {
-    // console.log(selected);
-    addLunch(selected);
-  };
-
   // Function to highlight selected lunch option in list, show location on the map
   this.selectSpot = function(selected) {
     // set current lunch item to clicked item
@@ -73,7 +67,8 @@ var ViewModel = function() {
 
   // Function to pull lunch options from FourSquare API
   this.getLunchData = function() {
-    // JSON request
+
+    // JSON request to get a list of lunch options
     console.log("Searching " + self.startingPoint().lat + ", " + self.startingPoint().lng);
     $.getJSON( self.fourSquareAPI.url + "explore", {
       // Pull relevant data from the API
@@ -88,8 +83,8 @@ var ViewModel = function() {
       format: "json"
     })
     .done(function(data) {
+      // Add found item objects to self.lunchSearch array
       data.response.groups[0].items.forEach(function(item) {
-        // Add found items to self.lunchSearch list
         self.lunchSearch.push({
           type: item.venue.categories[0].shortName,
           venueID: item.venue.id,
@@ -99,16 +94,16 @@ var ViewModel = function() {
           },
           name: item.venue.name,
           shortAddress: item.venue.location.address
-          // price: null
           });
       });
+      // Add price value to each found item object
       self.lunchSearch().forEach(function(item) {
         self.getPrice(item, function(price) {
-          console.log("foreach price: " + item + " and " + price);
           item.price = price;
         })
       });
     })
+    // Run function to add lunch option to list
     .done(function() {
       self.getLunch();
     })
@@ -140,6 +135,7 @@ var ViewModel = function() {
     }
   };
 
+  // Function to call FourSquare API to get venue price info
   this.getPrice = function(lunchItem, callback) {
     $.getJSON(self.fourSquareAPI.url + lunchItem.venueID, {
       // Query FourSquare API to get venue info (price)
@@ -187,25 +183,32 @@ var ViewModel = function() {
       self.selectSpot(lunchItem);
 
     // Notify user if they maxed-out their options
-    } else {
+    }
+
+    else {
       window.alert("No more options for you!");
     }
 
   };
 
   this.updatePrice = function(selected) {
+
     // if selected place's price is lower than the current max price parameter, update max price
     if(self.excludeParams().price <= 1 || selected.price <= 1) {
       self.excludeParams().price = 1;
       window.alert("That's as low as we can go! We'll search for another cheap place for you.");
     }
+
     else if (self.excludeParams().price > selected.price){
       self.excludeParams().price = parseInt(selected.price) - 1;
       console.log("New max price: " + self.excludeParams().price);
       // run getLunch function to get a new option with updated parameters
-    } else {
+    }
+
+    else {
       window.alert("The current max price is lower than this place! We'll search for another cheap place for you.");
     }
+
     // console.log(self.lunchList()[self.lunchList().length-1]);
     self.getLunch();
   }
