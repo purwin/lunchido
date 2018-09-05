@@ -38,6 +38,7 @@ var ViewModel = function() {
   // Selected lunch spot
   this.currentSpot = ko.observable();
 
+
   // Function to use geolocation for Google Maps starting point
   this.geoLocater = function() {
     // Get lat, lng, and address from Google Maps geolocate function
@@ -101,6 +102,14 @@ var ViewModel = function() {
           // price: null
           });
       });
+      self.lunchSearch().forEach(function(item) {
+        self.getPrice(item, function(price) {
+          console.log("foreach price: " + item + " and " + price);
+          item.price = price;
+        })
+      });
+    })
+    .done(function() {
       self.getLunch();
     })
     .fail(function(jqxhr, textStatus, error) {
@@ -109,45 +118,66 @@ var ViewModel = function() {
     });
   }
 
+  this.filterParams = function() {
+    var lunchItem = self.lunchSearch.splice(Math.floor(Math.random() * self.lunchSearch().length), 1)[0];
+
+    if (self.excludeParams().types.indexOf(lunchItem.type) >= 0) {
+      console.log("lunchItem's type is in exclusion array. Recursion!");
+      self.filterParams()
+    } else {
+      console.log("lunchItem type is OK! Moving forward.");
+      self.getPrice(lunchItem, function(price) {
+        console.log("filterParam Price: " + price);
+        lunchItem.price = price;
+        if (parseInt(lunchItem.price) <= parseInt(self.excludeParams().price)) {
+          console.log("Price is OK! Returning lunchItem");
+          return lunchItem;
+        } else {
+          console.log("Price is too high. Recursion!");
+          self.filterParams()
+        }
+      })
+    }
+  };
+
+  this.getPrice = function(lunchItem, callback) {
+    $.getJSON(self.fourSquareAPI.url + lunchItem.venueID, {
+      // Query FourSquare API to get venue info (price)
+      client_id: self.fourSquareAPI.client_id,
+      client_secret: self.fourSquareAPI.client_secret,
+      v: '20180827',
+      format: "json"
+    })
+    .done(function(data) {
+      try {
+        // Pull price data from the API, add to object
+        lunchItem.price = data.response.venue.price.tier;
+        console.log("Newest item to add: " + JSON.stringify(lunchItem));
+        callback(lunchItem.price);
+      }
+      catch(error) {
+        console.log(error);
+      }
+    })
+    .fail(function(jqxhr, textStatus, error) {
+      var err = textStatus + ", " + error;
+      console.log( "Request Failed: " + err );
+    });
+  };
+
   // Function to scrape a lunch option, add it to observableArray
   this.getLunch = function() {
-    // Run function if user has places to choose from and < 5 options
-    if (self.lunchSearch().length > 0 && self.lunchList().length < 5) {
 
-      do {
-        // Loop: Pop lunch spots off data list while food type is in exclusion list
-        // do {
-          // Get random lunch spot from search array, remove from array
-          lunchItem = self.lunchSearch.splice(Math.floor(Math.random()*self.lunchSearch().length), 1)[0];
-          console.log("LUNCH ITEM: " + JSON.stringify(lunchItem));
-          console.log("LUNCH TYPE: " + lunchItem.type);
-        // } while (self.excludeParams().types.indexOf(lunchItem.type) >= 0 );
+    // Notify user if there are no nearby places left
+    if (self.lunchSearch().length == 0) {
+    window.alert("Your area is all out of options! Choose from the options presented.");
+    }
 
-        // Get price parameter from FourSquare API
-        $.getJSON(self.fourSquareAPI.url + lunchItem.venueID, {
-          // Query FourSquare API to get venue info (price)
-          client_id: self.fourSquareAPI.client_id,
-          client_secret: self.fourSquareAPI.client_secret,
-          v: '20180827',
-          format: "json"
-        })
-        .done(function(data) {
-          try {
-            // Pull price data from the API, add to object
-            lunchItem.price = data.response.venue.price.tier;
-            console.log("Newest item to add: " + JSON.stringify(lunchItem));
-          }
-          catch(error) {
-            console.log(error);
-          }
-        })
-        .fail(function(jqxhr, textStatus, error) {
-          var err = textStatus + ", " + error;
-          console.log( "Request Failed: " + err );
-        });
-      } while ((parseInt(lunchItem.price) <= parseInt(self.excludeParams().price)) && (self.excludeParams().types.indexOf(lunchItem.type) >= 0));
-      console.log("And this happens.");
-      // Apply id to lunch item
+    // Run function if user has places to choose from and < 5 current options
+    else if (self.lunchSearch().length > 0 && self.lunchList().length < 5) {
+      // Pop random item from data list
+      var lunchItem = self.lunchSearch.splice(Math.floor(Math.random() * self.lunchSearch().length), 1)[0];
+      // Add ID to new lunch item
       lunchItem.id = self.lunchList().length + 1;
       // Add lunch spot to option list
       self.lunchList.push(lunchItem);
@@ -155,22 +185,18 @@ var ViewModel = function() {
       addLunch(lunchItem);
       // Run select lunch spot function
       self.selectSpot(lunchItem);
-    }
-
-    // Notify user if no there are no nearby places left
-    else if (self.lunchSearch().length == 0) {
-    window.alert("Your area is all out of options! Choose from the options presented.");
 
     // Notify user if they maxed-out their options
     } else {
       window.alert("No more options for you!");
     }
 
-  }
+  };
 
   this.updatePrice = function(selected) {
     // if selected place's price is lower than the current max price parameter, update max price
     if(self.excludeParams().price <= 1 || selected.price <= 1) {
+      self.excludeParams().price = 1;
       window.alert("That's as low as we can go! We'll search for another cheap place for you.");
     }
     else if (self.excludeParams().price > selected.price){
@@ -178,7 +204,7 @@ var ViewModel = function() {
       console.log("New max price: " + self.excludeParams().price);
       // run getLunch function to get a new option with updated parameters
     } else {
-      window.alert("The current max price is lower than this place! Leaving this be.");
+      window.alert("The current max price is lower than this place! We'll search for another cheap place for you.");
     }
     // console.log(self.lunchList()[self.lunchList().length-1]);
     self.getLunch();
@@ -192,7 +218,7 @@ var ViewModel = function() {
       // run getLunch function to get a new option with updated parameters
       self.getLunch();
     } else {
-      window.alert("We got you covered! Already exlcluding " + selected.type + " food options.");
+      window.alert("We got you covered! Already excluding " + selected.type + " food options.");
     }
   }
 
