@@ -4,7 +4,7 @@ html, body {
   margin: 0;
   padding: 0;
   font-size: 16px;
-  font-family: 'Lekton', sans-serif;
+  font-family: 'Miriam Libre', sans-serif;
   box-sizing: border-box;
 }
 
@@ -16,6 +16,12 @@ h1 {
   text-align: center;
 }
 
+button {
+  border-radius: 4px;
+  padding: .5rem;
+  margin: .25rem;
+  cursor: pointer;
+}
 
 .cold_opening {
   width: 100%;
@@ -46,9 +52,20 @@ h1 {
 .data {
    width: 50%;
    height: 100%;
-   margin: 0;
-   padding: 0;
+   padding: 1rem;
+   display: flex;
+   flex-direction: column;
+   align-content: center;
+   align-items: center;
+   justify-content: flex-start;
  }
+
+.data__list {
+  width: 75%;
+  background-color: #e77f67;
+  padding: 1rem;
+  border-radius: 4px;
+}
 
 .view {
   width: 50%;
