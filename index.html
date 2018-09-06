@@ -4,32 +4,52 @@
     <title>Geolocation</title>
     <meta name="viewport" content="initial-scale=1.0, user-scalable=no">
     <meta charset="utf-8">
+    <!-- <link href="https://fonts.googleapis.com/css?family=Lekton" rel="stylesheet"> -->
+    <!-- <link href="https://fonts.googleapis.com/css?family=Noto+Sans" rel="stylesheet"> -->
+    <!-- <link href="https://fonts.googleapis.com/css?family=Dosis" rel="stylesheet"> -->
+    <!-- <link href="https://fonts.googleapis.com/css?family=Monda" rel="stylesheet"> -->
+    <!-- <link href="https://fonts.googleapis.com/css?family=Nobile" rel="stylesheet"> -->
+    <!-- <link href="https://fonts.googleapis.com/css?family=Montserrat+Alternates" rel="stylesheet"> -->
+
+    <!-- <link href="https://fonts.googleapis.com/css?family=Chivo" rel="stylesheet"> -->
+    <!-- <link href="https://fonts.googleapis.com/css?family=IBM+Plex+Sans" rel="stylesheet"> -->
+    <link href="https://fonts.googleapis.com/css?family=Miriam+Libre" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
   </head>
   <body>
-    <div id="cold_opening">
+    <div class="cold_opening" data-bind="visible: startingPoint() == false">
+      <h1 class="cold_opening__h1">lunchido!</h1>
       <label for="start"></label><input type="text" placeholder="Enter a location!" data-bind="value: manualSearch">
       <button type="button" data-bind="click: manualLocater">GO!</button>
       <button type="button" data-bind="click: geoLocater">Use My Location</button>
     </div>
-    <div class="display">
-      <div class="display__head">
-        <h1 class="display__h1" data-bind="visible: startingPoint, text: startingPoint().address"></h1>
-      </div>
-      <div class="order">
-        <button data-bind="visible: (lunchList().length < 5 && startingPoint), click: getLunchData">FIND LUNCH!</button>
-        <ul data-bind="foreach: lunchList">
-          <li data-bind="text: name, click: $parent.selectSpot, css: { 'selected': $parent.currentSpot() === $data }"></li>
-        </ul>
-        <div class="params" data-bind="with: currentSpot()">
-          <button data-bind="click: $parent.updatePrice">Too pricy!</button>
-          <button data-bind="click: $parent.updateDistance">Too Far!</button>
-          <button data-bind="click: $parent.updateType">Something other than <span data-bind="text: type"></span>!</button>
-          <button data-bind="click: $parent.getLunch">Just give me another option!</button>
+    <div class="display" data-bind="visible: startingPoint">
+      <div class="data">
+        <div class="display__head">
+          <h1 class="display__h1" data-bind="text: startingPoint().address"></h1>
+        </div>
+        <div class="data__list">
+          <button class="" data-bind="visible: (lunchList().length < 5 && startingPoint), click: getLunchData">FIND LUNCH!</button>
+          <ul class="" data-bind="foreach: lunchList">
+            <li class="" data-bind="click: $parent.selectSpot, css: { 'selected': $parent.currentSpot() === $data }">
+              <div>
+                <h1 class="" data-bind="text: name"></h1>
+                <p class="">Price: <span data-bind="text: price"></span></p>
+                <p class="">Type: <span data-bind="text: type"></span></p>
+              </div>
+            </li>
+          </ul>
+          <div class="params" data-bind="with: currentSpot()">
+            <button class="" data-bind="click: $parent.updatePrice">Too pricy!</button>
+            <button class="" data-bind="click: $parent.updateDistance">Too Far!</button>
+            <button class="" data-bind="click: $parent.updateType">Something other than <span data-bind="text: type"></span>!</button>
+            <button class="" data-bind="click: $parent.getLunch">Just gimme another option!</button>
+          </div>
         </div>
       </div>
       <div class="view" data-bind="">
-        <div id="map">
+        <div class="view__map">
+          <div id="map"></div>
         </div>
       </div>
     </div>
