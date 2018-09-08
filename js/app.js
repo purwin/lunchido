@@ -87,6 +87,7 @@ var ViewModel = function() {
     .done(function(data) {
       // Add found item objects to self.lunchSearch array
       data.response.groups[0].items.forEach(function(item) {
+        console.log()
         self.lunchSearch.push({
           type: item.venue.categories[0].shortName,
           venueID: item.venue.id,
@@ -95,9 +96,9 @@ var ViewModel = function() {
             lng: item.venue.location.lng,
           },
           name: item.venue.name,
-          shortAddress: item.venue.location.address,
-          price: null
+          shortAddress: item.venue.location.address
           });
+        // self.getPrice(item, callback)
       });
       // Add price value to each found item object
       // self.lunchSearch().forEach(function(item) {
@@ -164,9 +165,48 @@ var ViewModel = function() {
     });
   };
 
+  this.checkPrice = function() {
+    // get random place and pop from data list
+    var lunchItem = self.lunchSearch.splice(Math.floor(Math.random() * self.lunchSearch().length), 1)[0];
+    // get JSON of price from FourSquare API
+    $.getJSON(self.fourSquareAPI.url + lunchItem.venueID, {
+      // Query FourSquare API to get venue info (price)
+      client_id: self.fourSquareAPI.client_id,
+      client_secret: self.fourSquareAPI.client_secret,
+      v: '20180827',
+      format: "json"
+    })
+    .done(function(data) {
+      // if price <= max price:
+      if (data.response.venue.price.tier <= self.excludeParams().price) {
+        lunchItem.price = data.response.venue.price.tier;
+        console.log("checkPrice: " + lunchItem.name + " price " + lunchItem.price + " <= " + self.excludeParams().price);
+        self.pushOption(lunchItem);
+      }
+      else {
+        console.log("checkPrice: " + lunchItem.name + " price fails. Recursion time.");
+        self.checkPrice();
+      }
+    })
+    .fail(function(jqxhr, textStatus, error) {
+      var err = textStatus + ", " + error;
+      console.log( "Request Failed: " + err );
+    });
+  }
+
+  this.pushOption = function(lunchItem) {
+    // Add ID to new lunch item
+    lunchItem.id = self.lunchList().length + 1;
+    // Add lunch spot to option list
+    self.lunchList.push(lunchItem);
+    // Run create map marker function
+    addLunch(lunchItem);
+    // Run select lunch spot function
+    self.selectSpot(lunchItem);
+  };
+
   // Function to scrape a lunch option, add it to observableArray
   this.getLunch = function() {
-
     // Notify user if there are no nearby places left
     if (self.lunchSearch().length == 0) {
     window.alert("Your area is all out of options! Choose from the options presented.");
@@ -175,15 +215,8 @@ var ViewModel = function() {
     // Run function if user has places to choose from and < 5 current options
     else if (self.lunchSearch().length > 0 && self.lunchList().length < 5) {
       // Pop random item from data list
-      var lunchItem = self.lunchSearch.splice(Math.floor(Math.random() * self.lunchSearch().length), 1)[0];
-      // Add ID to new lunch item
-      lunchItem.id = self.lunchList().length + 1;
-      // Add lunch spot to option list
-      self.lunchList.push(lunchItem);
-      // Run create map marker function
-      addLunch(lunchItem);
-      // Run select lunch spot function
-      self.selectSpot(lunchItem);
+      // var lunchItem = self.lunchSearch.splice(Math.floor(Math.random() * self.lunchSearch().length), 1)[0];
+      self.checkPrice();
 
     // Notify user if they maxed-out their options
     }
@@ -205,7 +238,6 @@ var ViewModel = function() {
   }
 
   this.updatePrice = function(selected) {
-
     // Set temporary var equal to passed argument price
     var priceCheck = parseInt(selected.price);
 
@@ -227,10 +259,6 @@ var ViewModel = function() {
         // Update data list to filter new exclusion
         console.log("New max price: " + self.excludeParams().price);
       }
-
-      // Update data list to filter new exclusion
-      self.filterParams();
-
     }
 
     // Run function to find a new lunch option
