@@ -13,11 +13,13 @@ var ViewModel = function() {
   var self = this;
 
   // Lunch starting point observable
-  this.startingPoint = ko.observable({
-    address: "Jackson Heights, Queens, NY, USA",
-    lat: 40.7556818,
-    lng: -73.8830701
-  });
+  this.startingPoint = ko.observable(false
+  // {
+  //   address: "Jackson Heights, Queens, NY, USA",
+  //   lat: 40.7556818,
+  //   lng: -73.8830701
+  // }
+  );
 
   // General exclusion parameters
   this.excludeParams = ko.observable({
@@ -93,15 +95,16 @@ var ViewModel = function() {
             lng: item.venue.location.lng,
           },
           name: item.venue.name,
-          shortAddress: item.venue.location.address
+          shortAddress: item.venue.location.address,
+          price: null
           });
       });
       // Add price value to each found item object
-      self.lunchSearch().forEach(function(item) {
-        self.getPrice(item, function(price) {
-          item.price = price;
-        })
-      });
+      // self.lunchSearch().forEach(function(item) {
+      //   self.getPrice(item, function(price) {
+      //     item.price = price;
+      //   })
+      // });
     })
     // Run function to add lunch option to list
     .done(function() {
@@ -113,27 +116,27 @@ var ViewModel = function() {
     });
   }
 
-  this.filterParams = function() {
-    var lunchItem = self.lunchSearch.splice(Math.floor(Math.random() * self.lunchSearch().length), 1)[0];
+  // this.filterParams = function() {
+  //   var lunchItem = self.lunchSearch.splice(Math.floor(Math.random() * self.lunchSearch().length), 1)[0];
 
-    if (self.excludeParams().types.indexOf(lunchItem.type) >= 0) {
-      console.log("lunchItem's type is in exclusion array. Recursion!");
-      self.filterParams()
-    } else {
-      console.log("lunchItem type is OK! Moving forward.");
-      self.getPrice(lunchItem, function(price) {
-        console.log("filterParam Price: " + price);
-        lunchItem.price = price;
-        if (parseInt(lunchItem.price) <= parseInt(self.excludeParams().price)) {
-          console.log("Price is OK! Returning lunchItem");
-          return lunchItem;
-        } else {
-          console.log("Price is too high. Recursion!");
-          self.filterParams()
-        }
-      })
-    }
-  };
+  //   if (self.excludeParams().types.indexOf(lunchItem.type) >= 0) {
+  //     console.log("lunchItem's type is in exclusion array. Recursion!");
+  //     self.filterParams()
+  //   } else {
+  //     console.log("lunchItem type is OK! Moving forward.");
+  //     self.getPrice(lunchItem, function(price) {
+  //       console.log("filterParam Price: " + price);
+  //       lunchItem.price = price;
+  //       if (parseInt(lunchItem.price) <= parseInt(self.excludeParams().price)) {
+  //         console.log("Price is OK! Returning lunchItem");
+  //         return lunchItem;
+  //       } else {
+  //         console.log("Price is too high. Recursion!");
+  //         self.filterParams()
+  //       }
+  //     })
+  //   }
+  // };
 
   // Function to call FourSquare API to get venue price info
   this.getPrice = function(lunchItem, callback) {
@@ -191,25 +194,46 @@ var ViewModel = function() {
 
   };
 
+  this.filterParams = function() {
+    self.lunchSearch().filter(function(value) {
+      if ((value.price <= self.excludeParams().price) && (self.excludeParams().types.indexOf(value.type) <= 0)) {
+        return value;
+      } else {
+        console.log("Removing " + value.name + ": " + value.price + " and " + value.type)
+      }
+    });
+  }
+
   this.updatePrice = function(selected) {
 
-    // if selected place's price is lower than the current max price parameter, update max price
-    if(self.excludeParams().price <= 1 || selected.price <= 1) {
-      self.excludeParams().price = 1;
-      window.alert("That's as low as we can go! We'll search for another cheap place for you.");
-    }
+    // Set temporary var equal to passed argument price
+    var priceCheck = parseInt(selected.price);
 
-    else if (self.excludeParams().price > selected.price){
-      self.excludeParams().price = parseInt(selected.price) - 1;
-      console.log("New max price: " + self.excludeParams().price);
-      // run getLunch function to get a new option with updated parameters
-    }
-
-    else {
+    // If max price is already lower than selected place's price, alert user
+    if (priceCheck > self.excludeParams().price) {
       window.alert("The current max price is lower than this place! We'll search for another cheap place for you.");
     }
 
-    // console.log(self.lunchList()[self.lunchList().length-1]);
+    // Otherwise update max price and filter data list
+    else {
+      // if selected place's price is lower than the current max price, update max price
+      if(self.excludeParams().price <= 1 || priceCheck <= 1) {
+        self.excludeParams().price = 1;
+        window.alert("That's as low as we can go! We'll search for another cheap place for you.");
+      }
+
+      else {
+        self.excludeParams().price = (priceCheck > 1) ? priceCheck - 1 : 1;
+        // Update data list to filter new exclusion
+        console.log("New max price: " + self.excludeParams().price);
+      }
+
+      // Update data list to filter new exclusion
+      self.filterParams();
+
+    }
+
+    // Run function to find a new lunch option
     self.getLunch();
   }
 
@@ -218,6 +242,8 @@ var ViewModel = function() {
     if (!self.excludeParams().types.includes(selected.type)) {
       self.excludeParams().types.push(selected.type);
       console.log("Updated food types to exclude: " + self.excludeParams().types);
+      // Update data list to filter new exclusion
+      self.filterParams();
       // run getLunch function to get a new option with updated parameters
       self.getLunch();
     } else {
