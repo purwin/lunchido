@@ -77,8 +77,17 @@ function initMap() {
   map = new google.maps.Map(document.getElementById("map"), {
     center: {lat: 39.952583, lng: -75.165222},
     zoom: 15,
+    fullscreenControl: false,
     mapTypeControl: false,
-    styles: styles
+    styles: styles,
+    zoomControl: true,
+    zoomControlOptions: {
+        position: google.maps.ControlPosition.RIGHT_CENTER
+    },
+    streetViewControl: true,
+    streetViewControlOptions: {
+        position: google.maps.ControlPosition.RIGHT_CENTER
+    }
   });
   bounds = new google.maps.LatLngBounds();
 
@@ -247,6 +256,7 @@ function populateInfoWindow(marker, infowindow) {
 
 // This function creates and adds a lunch spot marker to the map
 function addLunch(location) {
+  console.log("addLunch: " + JSON.stringify(location));
   var newMarker = createMarker(location.location, location.name);
   map.fitBounds(bounds);
   // ViewModel.lunchList.push(location);
@@ -262,36 +272,34 @@ function selectLunch(location) {
 // This function allows the user to input a desired travel time, in
 // minutes, and a travel mode, and a location - and only show the listings
 // that are within that travel time (via that travel mode) of the location
-function searchWithinTime() {
+function getDistance(origin, destination, callback) {
   // Initialize the distance matrix service.
   var distanceMatrixService = new google.maps.DistanceMatrixService;
-  var address = document.getElementById("search-within-time-text").value;
+  var address = origin.address;
   // Check to make sure the place entered isn't blank.
   if (address == "") {
     window.alert("You must enter an address.");
   } else {
-    hideListings();
     // Use the distance matrix service to calculate the duration of the
     // routes between all our markers, and the destination address entered
     // by the user. Then put all the origins into an origin matrix.
-    var origins = [];
-    for (var i = 0; i < markers.length; i++) {
-      origins[i] = markers[i].position;
-    }
-    var destination = address;
-    var mode = document.getElementById("mode").value;
+    var mode = "DRIVING";
     // Now that both the origins and destination are defined, get all the
     // info for the distances between them.
     distanceMatrixService.getDistanceMatrix({
-      origins: origins,
-      destinations: [destination],
+      origins: [address],
+      destinations: [destination.address],
       travelMode: google.maps.TravelMode[mode],
       unitSystem: google.maps.UnitSystem.IMPERIAL,
     }, function(response, status) {
       if (status !== google.maps.DistanceMatrixStatus.OK) {
         window.alert("Error: " + status);
       } else {
-        displayMarkersWithinTime(response);
+        // Get distance from origin to lunch spot in meters
+        var distance = response["rows"][0]["elements"][0]["distance"].value;
+        console.log("distance response: " + distance);
+        // Return distance in callback
+        callback(distance);
       }
     });
   }
