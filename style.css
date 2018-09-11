@@ -247,6 +247,10 @@ input {
   margin-left: 1.25rem;
 }
 
+.data__p--distance {
+  margin-left: 0;
+}
+
 .data__options {
   width: 100%;
   flex-grow: 1;
@@ -277,7 +281,8 @@ input {
 }
 
 .options__price {
-
+  text-align: right;
+  flex-shrink: 0;
 }
 
 .data__params {
