@@ -283,7 +283,7 @@ function getDistance(origin, destination, callback) {
     // Use the distance matrix service to calculate the duration of the
     // routes between all our markers, and the destination address entered
     // by the user. Then put all the origins into an origin matrix.
-    var mode = "DRIVING";
+    var mode = "WALKING";
     // Now that both the origins and destination are defined, get all the
     // info for the distances between them.
     distanceMatrixService.getDistanceMatrix({
