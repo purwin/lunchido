@@ -18,7 +18,7 @@ var ViewModel = function() {
   // General exclusion parameters
   this.excludeParams = ko.observable({
     count: 5,
-    distance: "",
+    distance: null,
     types: [],
     price: 3
   })
@@ -40,6 +40,7 @@ var ViewModel = function() {
   this.geoLocater = function() {
     // Get lat, lng, and address from Google Maps geolocate function
     var x = geolocateMe(function(data) {
+      console.log("geoLocater: starting point: " + JSON.stringify(data));
       // Set starting point details to returned object
       self.startingPoint(data);
     });
@@ -49,6 +50,7 @@ var ViewModel = function() {
   this.manualLocater = function() {
     // Get lat, lng, and address from Google Maps manual locate function
     var x = manualLocateMe(this.manualSearch(), function(data) {
+      console.log("manualLocater: starting point: " + JSON.stringify(data));
       // Set starting point details to returned object
       self.startingPoint(data);
     });
@@ -105,7 +107,8 @@ var ViewModel = function() {
   this.getLunch = function() {
     // Notify user if there are no nearby places left
     if (self.lunchSearch().length == 0) {
-    window.alert("Your area is all out of options! Choose from the options presented.");
+      window.alert("Your area is all out of options! Choose from the options presented.");
+      return;
     }
     // Run function if user has places to choose from and < max option #
     else if (self.lunchSearch().length > 0 && self.lunchList().length < self.excludeParams().count) {
@@ -123,6 +126,11 @@ var ViewModel = function() {
 
   // Recursion function to call FourSquare API and check item's price against set max price
   this.checkPrice = function() {
+    // Notify user if there are no nearby places left
+    if (self.lunchSearch().length == 0) {
+      window.alert("Your area is all out of options! Choose from the options presented.");
+      return;
+    }
     // get random place and pop from data list
     var lunchItem = self.lunchSearch.splice(Math.floor(Math.random() * self.lunchSearch().length), 1)[0];
     // get JSON of price from FourSquare API
@@ -141,8 +149,12 @@ var ViewModel = function() {
         getDistance(self.startingPoint(), lunchItem, function(data) {
           console.log("getDistance: " + data);
           lunchItem.distance = data;
-          // searchWithinTime(self.startingPoint(), lunchItem);
-          self.pushOption(lunchItem);
+          if ((self.excludeParams().distance == null) || (lunchItem.distance <= self.excludeParams().distance)) {
+            self.pushOption(lunchItem);
+          } else {
+            console.log("checkPrice: " + lunchItem.name + " distance fails. Recursion time.");
+            self.checkPrice();
+          }
         });
       }
       // ...otherwise call function again
@@ -219,6 +231,17 @@ var ViewModel = function() {
     } else {
       window.alert("We got you covered! Already excluding " + selected.type + " options.");
       // self.getLunch();
+    }
+    // run getLunch function to get a new option with updated parameters
+    self.getLunch();
+  };
+
+  this.updateDistance = function(selected) {
+    if ((self.excludeParams().distance == null) || (selected.distance < self.excludeParams().distance)) {
+      console.log("updateDistance; old max: " + self.excludeParams().distance + "; new max: " + selected.distance);
+      self.excludeParams().distance = selected.distance;
+    } else {
+      window.alert("The max distance is set lower than this! Don't worry, we got this.");
     }
     // run getLunch function to get a new option with updated parameters
     self.getLunch();
