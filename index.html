@@ -53,8 +53,8 @@
                     <p class="data__p" data-bind="visible: $parent.currentSpot() === $data"><i><span data-bind="text: type"></span></i></p>
                   </div>
                   <div class="options__price">
-                    <!-- <h3><i class="far fa-star"></i></h3> -->
                     <h3 class="data__h3" data-bind="text: $parent.priceIcon($data)"></h3>
+                    <p class="data__p data__p--distance" data-bind="visible: $parent.currentSpot() === $data"><span data-bind="text: parseFloat(distance * 0.00062137).toFixed(2)"></span> mi.</p>
                   </div>
                 </li>
               </ul>
