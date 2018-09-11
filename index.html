@@ -23,9 +23,13 @@
         <button class="btn" type="button" data-bind="click: geoLocater">Use My Location!</button>
       </div>
     </div>
+    <div class="waiting" data-bind="visible: startingPoint() == null">
+      <h2 class="waiting__h2">Thank you! Our data nerds are doing their thing.</h2>
+      <p class="waiting__p">Hang on a minute.</p>
+    </div>
     <div class="display" data-bind="visible: startingPoint">
       <div class="display__head">
-        <h1 class="display__h1" data-bind="text: startingPoint().address"></h1>
+        <h1 class="display__h1"><span class="pink">STARTING POINT:</span> <span data-bind="text: startingPoint().address"></span></h1>
       </div>
       <div class="display__body">
         <div class="data">
@@ -51,13 +55,13 @@
               </ul>
             </div>
             <div class="data__params" data-bind="with: currentSpot()">
-              <div class="param__buttons" data-bind="visible: $parent.lunchList().length < $parent.excludeParams().count">
+              <div class="param__buttons" data-bind="visible: (($parent.lunchList().length < $parent.excludeParams().count) || ($parent.lunchSearch().length > 0))">
                 <button class="btn btn--params" data-bind="click: $parent.updatePrice">Too Pricy!</button>
                 <button class="btn btn--params" data-bind="click: $parent.updateType">Not <span data-bind="text: type"></span> Food!</button>
                 <button class="btn btn--params btn--params-l" data-bind="click: $parent.updateDistance">Too Far!</button>
                 <button class="btn btn--params btn--params-r" data-bind="click: $parent.getLunch">Just Gimme Another!</button>
               </div>
-              <div class="param__warning" data-bind="visible: $parent.lunchList().length >= $parent.excludeParams().count">
+              <div class="param__warning" data-bind="visible: (($parent.lunchList().length >= $parent.excludeParams().count) || ($parent.lunchSearch().length == 0))">
                 <h3 class="param__h3">Out of chances! Gotta choose one of these <i class="fas fa-arrow-up"></i><i class="fas fa-arrow-up"></i><i class="fas fa-arrow-up"></i> options!</h3>
               </div>
               <button class="btn btn--perfect" data-bind="click: $parent.pickSpot">Perfect! That’s the spot!</button>
@@ -68,6 +72,9 @@
           <div class="view__map">
             <div id="map"></div>
           </div>
+        </div>
+        <div class="data__notice">
+          <h3 class="data__h3" data-bind="text: notice"></h3>
         </div>
       </div>
     </div>
