@@ -297,10 +297,50 @@ function getDistance(origin, destination, callback) {
       } else {
         // Get distance from origin to lunch spot in meters
         var distance = response["rows"][0]["elements"][0]["distance"].value;
-        console.log("distance response: " + distance);
         // Return distance in callback
         callback(distance);
       }
     });
   }
+}
+
+// Adapted from Udacity https://github.com/udacity/ud864
+// This function displays directions between the starting point and the chosen
+// lunch spot
+function displayDirections(origin, destination, callback) {
+  var directionsService = new google.maps.DirectionsService;
+  // Get mode again from the user entered value.
+    var mode = "WALKING";
+  directionsService.route({
+    // The origin is the passed in marker's position.
+    origin: origin.address,
+    // The destination is user entered address.
+    destination: destination.address,
+    travelMode: google.maps.TravelMode[mode]
+  }, function(response, status) {
+    if (status === google.maps.DirectionsStatus.OK) {
+      // Declare return var
+      var travel = {
+        time: "",
+        directions: []
+      };
+      // Get travel time in minutes
+      travel.time = response.routes[0].legs[0].duration.text;
+      // Get travel direction steps
+      response.routes[0].legs[0].steps.forEach(function(item) {
+        travel.directions.push(item.instructions);
+      })
+      callback(travel);
+      var directionsDisplay = new google.maps.DirectionsRenderer({
+        map: map,
+        directions: response,
+        draggable: true,
+        polylineOptions: {
+          strokeColor: 'green'
+        }
+      });
+    } else {
+      window.alert('Directions request failed due to ' + status);
+    }
+  });
 }
