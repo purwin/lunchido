@@ -113,6 +113,7 @@ var ViewModel = function() {
   this.getLunch = function() {
     // Notify user if there are no nearby places left
     if (self.lunchSearch().length == 0) {
+      self.excludeParams().count = self.lunchList().length;
       self.notice("You were too picky! Your area is all out of options! Choose from the options presented.");
       return;
     }
@@ -134,6 +135,7 @@ var ViewModel = function() {
   this.checkPrice = function() {
     // Notify user if there are no nearby places left
     if (self.lunchSearch().length == 0) {
+      self.excludeParams().count = self.lunchList().length;
       self.notice("You were too picky! Your area is all out of options! Choose from the options presented.");
       return;
     }
@@ -255,6 +257,14 @@ var ViewModel = function() {
   // Function run when winning lunchItem is chosen
   this.pickSpot = function(selected) {
     console.log("Place Chosen: " + selected.name);
+    // Call function to display Google Maps driving directions
+    displayDirections(self.startingPoint(), selected, function(data) {
+      var directions = "Travel Time: " + data.time + "<br/>";
+      data.directions.forEach(function(direction) {
+        directions += direction + "<br/>";
+      })
+      self.notice(directions);
+    });
   };
 
 }
