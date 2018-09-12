@@ -55,7 +55,7 @@
               </ul>
             </div>
             <div class="data__params" data-bind="with: currentSpot()">
-              <div class="param__buttons" data-bind="visible: (($parent.lunchList().length < $parent.excludeParams().count) || ($parent.lunchSearch().length > 0))">
+              <div class="param__buttons" data-bind="visible: (($parent.lunchList().length < $parent.excludeParams().count) && ($parent.lunchSearch().length > 0))">
                 <button class="btn btn--params" data-bind="click: $parent.updatePrice">Too Pricy!</button>
                 <button class="btn btn--params" data-bind="click: $parent.updateType">Not <span data-bind="text: type"></span> Food!</button>
                 <button class="btn btn--params btn--params-l" data-bind="click: $parent.updateDistance">Too Far!</button>
@@ -72,9 +72,9 @@
           <div class="view__map">
             <div id="map"></div>
           </div>
-        </div>
-        <div class="data__notice">
-          <h3 class="data__h3" data-bind="text: notice"></h3>
+          <div class="data__notice">
+            <h3 class="data__h3" data-bind="html: notice"></h3>
+          </div>
         </div>
       </div>
     </div>
