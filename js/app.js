@@ -38,6 +38,19 @@ var ViewModel = function() {
   //Give user notifications
   this.notice = ko.observable();
 
+  // Display results
+  this.results = ko.observable({
+    start: "",
+    lunch: {
+      name: "",
+      location: ""
+    },
+    time: "",
+    directions: []
+  })
+
+
+
   // Function to use geolocation for Google Maps starting point
   this.geoLocater = function() {
     // Set startingPoint to null
@@ -114,7 +127,7 @@ var ViewModel = function() {
     // Notify user if there are no nearby places left
     if (self.lunchSearch().length == 0) {
       self.excludeParams().count = self.lunchList().length;
-      self.notice("You were too picky! Your area is all out of options! Choose from the options presented.");
+      self.notice('<h3 class="view__h3">You\'re too picky! Your area is all out of options! Choose from the lunch spots presented.</h3>');
       return;
     }
     // Run function if user has places to choose from and < max option #
@@ -126,7 +139,7 @@ var ViewModel = function() {
     // Notify user if they maxed-out their options
     }
     else {
-      self.notice("No more options for you!");
+      self.notice('<h3 class="view__h3">No more options for you!</h3>');
     }
 
   };
@@ -136,7 +149,7 @@ var ViewModel = function() {
     // Notify user if there are no nearby places left
     if (self.lunchSearch().length == 0) {
       self.excludeParams().count = self.lunchList().length;
-      self.notice("You were too picky! Your area is all out of options! Choose from the options presented.");
+      self.notice('<h3 class="view__h3">You were too picky! Your area is all out of options! Choose from the lunch spots presented.</h3>');
       return;
     }
     // get random place and pop from data list
@@ -152,14 +165,20 @@ var ViewModel = function() {
     .done(function(data) {
       // if price <= max price:
       if (data.response.venue.price.tier <= self.excludeParams().price) {
+        // Store price
         lunchItem.price = data.response.venue.price.tier;
         console.log("checkPrice: " + lunchItem.name + " price " + lunchItem.price + " <= " + self.excludeParams().price);
+        // Call Google Maps distance function
         getDistance(self.startingPoint(), lunchItem, function(data) {
+          // Store distance
           lunchItem.distance = data;
+          // If distance <= current max distance...
           if ((self.excludeParams().distance == null) || (lunchItem.distance <= self.excludeParams().distance)) {
+            // Add spot to lunch suggestion list
             self.pushOption(lunchItem);
           } else {
             console.log("checkPrice: " + lunchItem.name + " distance fails. Recursion time.");
+            // ...otherwise call function again
             self.checkPrice();
           }
         });
@@ -204,51 +223,59 @@ var ViewModel = function() {
     })
   };
 
+  // Function to update the max price
   this.updatePrice = function(selected) {
     // Set temporary var equal to passed argument price
     var priceCheck = parseInt(selected.price);
     // If max price is already lower than selected place's price, alert user
     if (priceCheck > self.excludeParams().price) {
-      self.notice("The current max price is lower than this place! We'll search for another cheap place for you.");
+      self.notice('<h3 class="view__h3">The current max price is lower than this place! We\'ll search for another cheap place for you.</h3>');
     }
     // Otherwise update max price and filter data list
     else {
-      // if selected place's price is lower than the current max price, update max price
+      // Set max price to 1
       if(self.excludeParams().price <= 1 || priceCheck <= 1) {
         self.excludeParams().price = 1;
-        self.notice("That's as low as we can go! We'll search for another cheap place for you.");
+        self.notice('<h3 class="view__h3">That\'s as low as we can go! We\'ll search for another cheap place for you.</h3>');
       }
       else {
+        // Update max price to < selected spot
         self.excludeParams().price = (priceCheck > 1) ? priceCheck - 1 : 1;
-        // Update data list to filter new exclusion
         console.log("New max price: " + self.excludeParams().price);
+        self.notice('<h3 class="view__h3">Got it! We\'ll search for cheaper places.</h3>');
       }
     }
     // Run function to find a new lunch option
     self.getLunch();
   }
 
+  // Function to update the food type exclusion list
   this.updateType = function(selected) {
     // if selected place's food type is not yet on the exlusions list, add it
     if (!self.excludeParams().types.includes(selected.type)) {
       self.excludeParams().types.push(selected.type);
       console.log("Updated food types to exclude: " + self.excludeParams().types);
+      self.notice('<h3 class="view__h3">Noted! We\'ll avoid ' + selected.type + ' food options.</h3>');
       // Update data list to filter new exclusion
       self.filterParams();
     } else {
-      self.notice("We got you covered! Already excluding " + selected.type + " options.");
+      self.notice('<h3 class="view__h3">We got you covered! Already excluding ' + selected.type + ' options.</h3>');
       // self.getLunch();
     }
     // run getLunch function to get a new option with updated parameters
     self.getLunch();
   };
 
+  // Function to update the max distance
   this.updateDistance = function(selected) {
+    // If max distance is not yet set, or if selected place's distance is closer than current max...
     if ((self.excludeParams().distance == null) || (selected.distance < self.excludeParams().distance)) {
       console.log("updateDistance; old max: " + self.excludeParams().distance + "; new max: " + selected.distance);
+      // Update max distance
       self.excludeParams().distance = selected.distance;
+      self.notice('<h3 class="view__h3">Understood. We\'ll look for closer lunch spots.</h3>');
     } else {
-      self.notice("The max distance is set lower than this! Don't worry, we got this.");
+      self.notice('<h3 class="view__h3">The max distance is set lower than this! Don\'t worry, we got this.</h3>');
     }
     // run getLunch function to get a new option with updated parameters
     self.getLunch();
@@ -259,11 +286,20 @@ var ViewModel = function() {
     console.log("Place Chosen: " + selected.name);
     // Call function to display Google Maps driving directions
     displayDirections(self.startingPoint(), selected, function(data) {
-      var directions = "Travel Time: " + data.time + "<br/>";
+      // Set results observable start name
+      self.results().start = self.startingPoint().address;
+      // Set results observable lunch spot info
+      self.results().lunch = {
+        name: selected.name,
+        address: selected.address
+      };
+      // Set results observable travel time
+      self.results().time = data.time;
+      // Add each direction item
       data.directions.forEach(function(direction) {
-        directions += direction + "<br/>";
+        self.results().directions.push(direction);
       })
-      self.notice(directions);
+      console.dir(self.results());
     });
   };
 
