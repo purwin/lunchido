@@ -29,25 +29,25 @@
     </div>
     <div class="display" data-bind="visible: startingPoint">
       <div class="display__head">
-        <h1 class="display__h1"><span class="pink">STARTING POINT:</span> <span data-bind="text: startingPoint().address"></span></h1>
+        <h1 class="display__h1"><span class="pink--l">STARTING POINT:</span> <span data-bind="text: startingPoint().address"></span></h1>
       </div>
       <div class="display__body">
         <div class="data">
           <div class="data__find" data-bind="visible: (startingPoint && lunchList() == false)">
             <button class="btn btn--find" data-bind="click: getLunchData">FIND LUNCH!</button>
           </div>
-          <div class="data__list" data-bind="visible: lunchList().length > 0">
+          <div class="data__list" data-bind="visible: ((lunchList().length > 0) && (results().directions.length <= 0))">
             <div class="data__head">
               <h2 class="data__h2">LUNCH OPTIONS!</h2>
             </div>
             <div class="data__options">
               <ul class="data__ul" data-bind="foreach: lunchList">
                 <li class="data__li" data-bind="click: $parent.selectSpot, css: { 'selected': $parent.currentSpot() === $data }">
-                  <div class="options__name">
+                  <div class="option__name">
                     <h3 class="data__h3"><span data-bind="text: 5 - parseInt($parent.lunchList.indexOf($data))"></span>. <span data-bind="text: name"></span></h3>
                     <p class="data__p" data-bind="visible: $parent.currentSpot() === $data"><i><span data-bind="text: type"></span></i></p>
                   </div>
-                  <div class="options__price">
+                  <div class="option__price">
                     <h3 class="data__h3" data-bind="text: $parent.priceIcon($data)"></h3>
                     <p class="data__p data__p--distance" data-bind="visible: $parent.currentSpot() === $data"><span data-bind="text: parseFloat(distance * 0.00062137).toFixed(2)"></span> mi.</p>
                   </div>
@@ -72,8 +72,21 @@
           <div class="view__map">
             <div id="map"></div>
           </div>
-          <div class="data__notice">
-            <h3 class="data__h3" data-bind="html: notice"></h3>
+          <div class="view__notice" data-bind="html: notice">
+          </div>
+        </div>
+        <div class="results" data-bind="visible: results().start">
+          <div class="results__head">
+            <h2 class="results__h2">FULL SUCCESS!</h2>
+          </div>
+          <div class="results__body" data-bind="with: results()">
+            <h3 class="results__h3">A. <span data-bind="text: start"></span></h3>
+            <h3 class="results__h3">B. <span data-bind="text: lunch.name"></span></h3>
+            <h3 class="results__h3">@ <span data-bind="text: lunch.address"></span></h3>
+            <p class="results__p" data-bind="text: time"></p>
+            <ul class="results__ul" data-bind="foreach: directions">
+              <li class="results__li" data-bind="html: $data"></li>
+            </ul>
           </div>
         </div>
       </div>
