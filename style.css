@@ -120,9 +120,38 @@ input {
   max-width: 100%;
 }
 
-.pink {
+.pink--l {
   color: #f8a5c2;
 }
+
+.pink--d {
+  color: #f78fb3;
+}
+
+.red--l {
+  color: #e77f67;
+}
+
+.red--d {
+  color: #e15f41;
+}
+
+.blue--l {
+  color: #63cdda;
+}
+
+.blue--d {
+  color: #3dc1d3;
+}
+
+.purple--l {
+  color: #778beb;
+}
+
+.purple--d {
+  color: #546de5;
+}
+
 
 .cold_opening {
   width: 100%;
@@ -156,7 +185,7 @@ input {
   align-items: center;
   justify-content: center;
   flex-wrap: wrap;
-  margin: 1rem;
+  margin-top: 1rem;
 }
 
 .cold_opening__geo {
@@ -297,18 +326,22 @@ margin-bottom: 0;
   /* flex-wrap: wrap; */
 }
 
-.data__notice {
+.view__notice {
   width: 100%;
 }
 
-.options__name {
+.view__h3  {}
+
+.view__p {}
+
+.option__name {
   flex-grow: 1;
   margin-left: 1.25rem;
   text-indent: -1.25rem;
   margin-right: 1rem;
 }
 
-.options__price {
+.option__price {
   text-align: right;
   flex-shrink: 0;
   display: flex;
@@ -358,6 +391,12 @@ margin-bottom: 0;
   padding: 1rem;
   overflow: hidden;
 }
+
+.view__h3 {}
+
+.view__ul {}
+
+.view__li {}
 
 #map {
   width: 100%;
