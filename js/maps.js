@@ -1,34 +1,4 @@
-// get start point
 
-// get first rando open place
-
-// determine if it's within 15 mins
-
-// get:
-// name,
-// location,
-// food type,
-// price,
-// reviews,
-// photos,
-// distance in time
-
-// add it to list
-
-// if perfect:
-// give directions
-
-// if not:
-//   update search params
-//   run search function
-
-
-
-
-// search params (updated throughout):
-// maxPrice (3 at first)
-// excludeType (empty at first)
-// maxDistance (15min at first)
 
 var map, infoWindow, bounds;
 
@@ -141,21 +111,17 @@ function geolocateMe(callback) {
         lng: position.coords.longitude
       };
       var startMarker = createMarker(pos, "Lunch start");
-
       map.setCenter(pos);
       // bounds.extend(pos);
 
       // Call geocodeLatLng function to get formatted address
       var geocoder = new google.maps.Geocoder();
       var x = geocodeLatLng(pos, geocoder, function(data) {
-
         // Get formatted address
         pos.address = data;
-
         // Return coordinates and formatted address with callback
         callback(pos);
       });
-
     }, function() {
       handleLocationError(true, infoWindow, map.getCenter());
     });
@@ -191,11 +157,9 @@ function geocodeLatLng(pos, geocoder, callback) {
 function createMarker(position, title) {
   // Style the markers a bit. This will be our listing marker icon.
   var defaultIcon = makeMarkerIcon('f3a683');
-
   // Create a "highlighted location" marker color for when the user
   // mouses over the marker.
   var highlightedIcon = makeMarkerIcon('f19066');
-
   // Create new marker
   var marker = new google.maps.Marker({
     position: position,
@@ -234,8 +198,22 @@ function makeMarkerIcon(markerColor) {
     new google.maps.Size(21, 34),
     new google.maps.Point(0, 0),
     new google.maps.Point(10, 34),
-    new google.maps.Size(21,34));
+    new google.maps.Size(21,34)
+  );
   return markerImage;
+}
+
+// Adapted from Udacity https://github.com/udacity/ud864
+// This function will loop through the listings and hide them all.
+function hideListings() {
+
+  markers.forEach(function(item) {
+    item.setMap(null);
+  })
+  // console.log("markers: " + markers.length);
+  // for (var i = 0; i < markers.length; i++) {
+  //   markers[i].setMap(null);
+  // }
 }
 
 // This function populates the infowindow when the marker is clicked. We'll only allow
@@ -259,8 +237,6 @@ function addLunch(location) {
   console.log("addLunch: " + JSON.stringify(location));
   var newMarker = createMarker(location.location, location.name);
   map.fitBounds(bounds);
-  // ViewModel.lunchList.push(location);
-  // console.log(initialLunch);
 }
 
 function selectLunch(location) {
@@ -269,9 +245,7 @@ function selectLunch(location) {
 }
 
 // Adapted from Udacity https://github.com/udacity/ud864
-// This function allows the user to input a desired travel time, in
-// minutes, and a travel mode, and a location - and only show the listings
-// that are within that travel time (via that travel mode) of the location
+// This function allows calculates the distance between the starting point and a lunch option
 function getDistance(origin, destination, callback) {
   // Initialize the distance matrix service.
   var distanceMatrixService = new google.maps.DistanceMatrixService;
@@ -280,12 +254,7 @@ function getDistance(origin, destination, callback) {
   if (address == "") {
     window.alert("You must enter an address.");
   } else {
-    // Use the distance matrix service to calculate the duration of the
-    // routes between all our markers, and the destination address entered
-    // by the user. Then put all the origins into an origin matrix.
     var mode = "WALKING";
-    // Now that both the origins and destination are defined, get all the
-    // info for the distances between them.
     distanceMatrixService.getDistanceMatrix({
       origins: [address],
       destinations: [destination.address],
@@ -330,13 +299,17 @@ function displayDirections(origin, destination, callback) {
       response.routes[0].legs[0].steps.forEach(function(item) {
         travel.directions.push(item.instructions);
       })
+      // Return direction steps and travel time
       callback(travel);
+      // Remove current markers
+      hideListings();
+      // Display map directions
       var directionsDisplay = new google.maps.DirectionsRenderer({
         map: map,
         directions: response,
         draggable: true,
         polylineOptions: {
-          strokeColor: 'green'
+          strokeColor: '#f78fb3'
         }
       });
     } else {
