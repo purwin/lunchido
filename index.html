@@ -36,7 +36,7 @@
           <div class="data__find" data-bind="visible: (startingPoint && lunchList() == false)">
             <button class="btn btn--find" data-bind="click: getLunchData">FIND LUNCH!</button>
           </div>
-          <div class="data__list" data-bind="visible: ((lunchList().length > 0) && (results().directions.length <= 0))">
+          <div class="data__list" data-bind="visible: ((lunchList().length > 0) && (results().start == false))">
             <div class="data__head">
               <h2 class="data__h2">LUNCH OPTIONS!</h2>
             </div>
