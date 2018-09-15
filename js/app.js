@@ -39,15 +39,16 @@ var ViewModel = function() {
   this.notice = ko.observable();
 
   // Display results
-  this.results = ko.observable({
-    start: "",
+  this.results = {
+    start: ko.observable(false),
     lunch: {
-      name: "",
-      location: ""
+      name: ko.observable(false),
+      address: ko.observable(false)
     },
-    time: "",
-    directions: []
-  })
+    time: ko.observable(false),
+    mode: ko.observable("WALKING"),
+    directions: ko.observableArray([])
+  };
 
 
 
@@ -118,7 +119,7 @@ var ViewModel = function() {
     })
     .fail(function(jqxhr, textStatus, error) {
       var err = textStatus + ", " + error;
-      console.log( "Request Failed: " + err );
+      window.alert( "Request Failed: " + err );
     });
   };
 
@@ -191,7 +192,7 @@ var ViewModel = function() {
     })
     .fail(function(jqxhr, textStatus, error) {
       var err = textStatus + ", " + error;
-      console.log( "Request Failed: " + err );
+      window.log( "Request Failed: " + err );
     });
   };
 
@@ -285,23 +286,31 @@ var ViewModel = function() {
   this.pickSpot = function(selected) {
     console.log("Place Chosen: " + selected.name);
     // Call function to display Google Maps driving directions
-    displayDirections(self.startingPoint(), selected, function(data) {
+    getDirections(self.startingPoint(), selected, self.results.mode(), function(data) {
       // Set results observable start name
-      self.results().start = self.startingPoint().address;
+      self.results.start(self.startingPoint().address);
       // Set results observable lunch spot info
-      self.results().lunch = {
-        name: selected.name,
-        address: selected.address
-      };
+      self.results.lunch.name(selected.name);
+      self.results.lunch.address(selected.address);
       // Set results observable travel time
-      self.results().time = data.time;
+      self.results.time(data.time);
       // Add each direction item
       data.directions.forEach(function(direction) {
-        self.results().directions.push(direction);
+        self.results.directions.push(direction);
       })
-      console.dir(self.results());
+      // Clear notice observable
+      self.notice('<h3 class="view__h3 center">Great choice!</h3>');
     });
   };
+
+  this.updateDirections = function(data, event) {
+    // Update directions mode
+    if (event.target.value != self.results.mode()) {
+      self.results.mode(event.target.value);
+      self.results.directions.removeAll()
+      self.pickSpot(self.currentSpot());
+    }
+  }
 
 }
 
