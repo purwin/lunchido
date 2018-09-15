@@ -1,6 +1,7 @@
 
-
 var map, infoWindow, bounds;
+
+var directionsDisplay = null;
 
 var markers = [];
 
@@ -210,10 +211,6 @@ function hideListings() {
   markers.forEach(function(item) {
     item.setMap(null);
   })
-  // console.log("markers: " + markers.length);
-  // for (var i = 0; i < markers.length; i++) {
-  //   markers[i].setMap(null);
-  // }
 }
 
 // This function populates the infowindow when the marker is clicked. We'll only allow
@@ -236,7 +233,7 @@ function populateInfoWindow(marker, infowindow) {
 function addLunch(location) {
   console.log("addLunch: " + JSON.stringify(location));
   var newMarker = createMarker(location.location, location.name);
-  map.fitBounds(bounds);
+  map.fitBounds(bounds, 25);
 }
 
 function selectLunch(location) {
@@ -276,25 +273,20 @@ function getDistance(origin, destination, callback) {
 // Adapted from Udacity https://github.com/udacity/ud864
 // This function displays directions between the starting point and the chosen
 // lunch spot
-function displayDirections(origin, destination, callback) {
+function getDirections(origin, destination, mode, callback) {
   var directionsService = new google.maps.DirectionsService;
-  // Get mode again from the user entered value.
-    var mode = "WALKING";
   directionsService.route({
-    // The origin is the passed in marker's position.
     origin: origin.address,
-    // The destination is user entered address.
     destination: destination.address,
     travelMode: google.maps.TravelMode[mode]
   }, function(response, status) {
     if (status === google.maps.DirectionsStatus.OK) {
       // Declare return var
       var travel = {
-        time: "",
+        // Get travel time in minutes
+        time: response.routes[0].legs[0].duration.text,
         directions: []
       };
-      // Get travel time in minutes
-      travel.time = response.routes[0].legs[0].duration.text;
       // Get travel direction steps
       response.routes[0].legs[0].steps.forEach(function(item) {
         travel.directions.push(item.instructions);
@@ -304,7 +296,10 @@ function displayDirections(origin, destination, callback) {
       // Remove current markers
       hideListings();
       // Display map directions
-      var directionsDisplay = new google.maps.DirectionsRenderer({
+      if (directionsDisplay) {
+        directionsDisplay.setMap(null);
+      }
+      directionsDisplay = new google.maps.DirectionsRenderer({
         map: map,
         directions: response,
         draggable: true,
