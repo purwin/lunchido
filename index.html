@@ -32,11 +32,12 @@
         <h1 class="display__h1"><span class="pink--l">STARTING POINT:</span> <span data-bind="text: startingPoint().address"></span></h1>
       </div>
       <div class="display__body">
-        <div class="data">
+        <div class="data" data-bind="visible: !results.start()">
           <div class="data__find" data-bind="visible: (startingPoint && lunchList() == false)">
+            <h4 class="data__h4">You’ve got FIVE chances to let us find the perfect lunch spot for you.</h4>
             <button class="btn btn--find" data-bind="click: getLunchData">FIND LUNCH!</button>
           </div>
-          <div class="data__list" data-bind="visible: ((lunchList().length > 0) && (results().start == false))">
+          <div class="data__list" data-bind="visible: lunchList().length > 0">
             <div class="data__head">
               <h2 class="data__h2">LUNCH OPTIONS!</h2>
             </div>
@@ -72,21 +73,27 @@
           <div class="view__map">
             <div id="map"></div>
           </div>
-          <div class="view__notice" data-bind="html: notice">
+          <div class="view__notice center" data-bind="html: notice">
           </div>
         </div>
-        <div class="results" data-bind="visible: results().start">
+        <div class="results" data-bind="visible: results.start()">
           <div class="results__head">
             <h2 class="results__h2">FULL SUCCESS!</h2>
           </div>
-          <div class="results__body" data-bind="with: results()">
-            <h3 class="results__h3">A. <span data-bind="text: start"></span></h3>
-            <h3 class="results__h3">B. <span data-bind="text: lunch.name"></span></h3>
+          <div class="results__body" data-bind="with: results">
+            <h3 class="results__h3"><span class="red--d">A.</span> <span data-bind="text: start"></span></h3>
+            <p class="results__p pink--l"><i class="fas fa-arrow-down"></i><i class="fas fa-arrow-down"></i><i class="fas fa-arrow-down"></i></p>
+            <h3 class="results__h3"><span class="red--d">B.</span> <span class="blue--l" data-bind="text: lunch.name"></span></h3>
             <h3 class="results__h3">@ <span data-bind="text: lunch.address"></span></h3>
-            <p class="results__p" data-bind="text: time"></p>
-            <ul class="results__ul" data-bind="foreach: directions">
+            <h4 class="results__h4 pink--l"><span data-bind="text: $parent.results.mode"></span> DIRECTIONS</h4>
+            <p class="results__p">Travel time: <span data-bind="text: time"></span></p>
+            <ol class="results__ol" data-bind="foreach: directions">
               <li class="results__li" data-bind="html: $data"></li>
-            </ul>
+            </ol>
+          </div>
+          <div class="results__buttons">
+            <button class="btn btn--directions btn--directions--l" value="DRIVING" data-bind="click: updateDirections">DRIVING</button>
+            <button class="btn btn--directions btn--directions--r" value="WALKING" data-bind="click: updateDirections">WALKING</button>
           </div>
         </div>
       </div>
