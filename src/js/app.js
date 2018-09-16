@@ -50,7 +50,7 @@ var ViewModel = function() {
       address: ko.observable(false)
     },
     time: ko.observable(false),
-    mode: ko.observable("WALKING"),
+    mode: ko.observable(false),
     directions: ko.observableArray([])
   };
 
@@ -297,8 +297,12 @@ var ViewModel = function() {
     self.dataToggle();
     console.log("Place Chosen: " + selected.name);
     // If distance is greater than 1 mile, default directions to DRIVING
-    if (selected.distance > 1609) {
-      self.results.mode("DRIVING");
+    if (self.results.mode() == false) {
+      if (selected.distance > 1609) {
+        self.results.mode("DRIVING");
+      } else {
+        self.results.mode("WALKING");
+      }
     }
     // Call function to display Google Maps driving directions
     googmaps.getDirections(self.startingPoint(), selected, self.results.mode(), function(data) {
