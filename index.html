@@ -9,7 +9,7 @@
     <link rel="stylesheet" href="style.css">
   </head>
   <body class="body" data-bind="">
-    <div class="cold_opening" data-bind="visible: startingPoint() == false">
+    <div class="cold_opening" data-bind="visible: ((startingPoint() == false) && (searching() == false))">
       <div class="cold_opening__head">
         <h1 class="cold_opening__h1">lunchido!</h1>
         <p class="cold_opening__p">Let me decide lunch for you!</p>
@@ -23,7 +23,7 @@
         <button class="btn" type="button" data-bind="click: geoLocater">Use My Location!</button>
       </div>
     </div>
-    <div class="waiting" data-bind="visible: startingPoint() == null">
+    <div class="waiting" data-bind="visible: ((startingPoint() == false) && (searching))">
       <h2 class="waiting__h2">Thank you! Our data nerds are doing their thing.</h2>
       <p class="waiting__p">Hang on a minute.</p>
     </div>
