@@ -5,8 +5,10 @@ var directionsDisplay = null;
 
 var markers = [];
 
+window.initMap = initMap;
+
 // Create map
-function initMap() {
+export function initMap() {
   var styles = [
     {
       "featureType": "poi",
@@ -52,13 +54,7 @@ function initMap() {
     mapTypeControl: false,
     styles: styles,
     zoomControl: true,
-    zoomControlOptions: {
-        position: google.maps.ControlPosition.RIGHT_CENTER
-    },
-    streetViewControl: true,
-    streetViewControlOptions: {
-        position: google.maps.ControlPosition.RIGHT_CENTER
-    }
+    streetViewControl: true
   });
   bounds = new google.maps.LatLngBounds();
 
@@ -67,7 +63,7 @@ function initMap() {
 }
 
 // Set map based on text input, return lat, lng, and formatted_address as a callback
-function manualLocateMe(address, callback) {
+export function manualLocateMe(address, callback) {
   // Initialize the geocoder.
   var geocoder = new google.maps.Geocoder();
   // Make sure the address isn't blank.
@@ -103,7 +99,7 @@ function manualLocateMe(address, callback) {
 }
 
 // Function: Set map based on geolocation
-function geolocateMe(callback) {
+export function geolocateMe(callback) {
   // Try HTML5 geolocation.
   if (navigator.geolocation) {
     navigator.geolocation.getCurrentPosition(function(position) {
@@ -132,7 +128,7 @@ function geolocateMe(callback) {
   }
 }
 
-function handleLocationError(browserHasGeolocation, infoWindow, pos) {
+export function handleLocationError(browserHasGeolocation, infoWindow, pos) {
   infoWindow.setPosition(pos);
   infoWindow.setContent(browserHasGeolocation ?
                         "Error: The Geolocation service failed." :
@@ -141,7 +137,7 @@ function handleLocationError(browserHasGeolocation, infoWindow, pos) {
 }
 
 // Get formatted_address for geolocation
-function geocodeLatLng(pos, geocoder, callback) {
+export function geocodeLatLng(pos, geocoder, callback) {
   geocoder.geocode(
     { 'location': pos,
     }, function(results, status) {
@@ -155,7 +151,7 @@ function geocodeLatLng(pos, geocoder, callback) {
 
 
 // Function: Create a marker, add click events, re-fit the map based on the added markers, and add marker to the map
-function createMarker(position, title) {
+export function createMarker(position, title) {
   // Style the markers a bit. This will be our listing marker icon.
   var defaultIcon = makeMarkerIcon('f3a683');
   // Create a "highlighted location" marker color for when the user
@@ -192,7 +188,7 @@ function createMarker(position, title) {
 // This function takes in a COLOR, and then creates a new marker
 // icon of that color. The icon will be 21 px wide by 34 high, have an origin
 // of 0, 0 and be anchored at 10, 34).
-function makeMarkerIcon(markerColor) {
+export function makeMarkerIcon(markerColor) {
   var markerImage = new google.maps.MarkerImage(
     'http://chart.googleapis.com/chart?chst=d_map_spin&chld=1.15|0|'+ markerColor +
     '|40|_|%E2%80%A2',
@@ -206,8 +202,7 @@ function makeMarkerIcon(markerColor) {
 
 // Adapted from Udacity https://github.com/udacity/ud864
 // This function will loop through the listings and hide them all.
-function hideListings() {
-
+export function hideListings() {
   markers.forEach(function(item) {
     item.setMap(null);
   })
@@ -216,7 +211,7 @@ function hideListings() {
 // This function populates the infowindow when the marker is clicked. We'll only allow
 // one infowindow which will open at the marker that is clicked, and populate based
 // on that markers position.
-function populateInfoWindow(marker, infowindow) {
+export function populateInfoWindow(marker, infowindow) {
   // Check to make sure the infowindow is not already opened on this marker.
   if (infowindow.marker != marker) {
     infowindow.marker = marker;
@@ -230,20 +225,20 @@ function populateInfoWindow(marker, infowindow) {
 }
 
 // This function creates and adds a lunch spot marker to the map
-function addLunch(location) {
+export function addLunch(location) {
   console.log("addLunch: " + JSON.stringify(location));
   var newMarker = createMarker(location.location, location.name);
   map.fitBounds(bounds, 25);
 }
 
-function selectLunch(location) {
+export function selectLunch(location) {
   populateInfoWindow(markers[location.id], infoWindow);
   // markers[location.id-1].setIcon(highlightedIcon);
 }
 
 // Adapted from Udacity https://github.com/udacity/ud864
 // This function allows calculates the distance between the starting point and a lunch option
-function getDistance(origin, destination, callback) {
+export function getDistance(origin, destination, callback) {
   // Initialize the distance matrix service.
   var distanceMatrixService = new google.maps.DistanceMatrixService;
   var address = origin.address;
@@ -273,11 +268,11 @@ function getDistance(origin, destination, callback) {
 // Adapted from Udacity https://github.com/udacity/ud864
 // This function displays directions between the starting point and the chosen
 // lunch spot
-function getDirections(origin, destination, mode, callback) {
+export function getDirections(origin, destination, mode, callback) {
   var directionsService = new google.maps.DirectionsService;
   directionsService.route({
     origin: origin.address,
-    destination: destination.address,
+    destination: destination.location,
     travelMode: google.maps.TravelMode[mode]
   }, function(response, status) {
     if (status === google.maps.DirectionsStatus.OK) {
