@@ -29,16 +29,19 @@
     </div>
     <div class="display" data-bind="visible: startingPoint, click: dataRemove">
       <div class="display__head">
-        <div class="menu" data-bind="click: dataToggle, clickBubble: false"><i class="fas fa-chevron-circle-down"></i></div>
-        <h1 class="display__h1"><span class="pink--l">STARTING POINT</span><br/><span data-bind="text: startingPoint().address"></span></h1>
+        <div class="display__menu" data-bind="click: dataToggle, clickBubble: false"><i class="menu__icon fas fa-chevron-circle-down"></i></div>
+        <div class="display__title">
+          <h1 class="display__h1"><span class="pink--l">STARTING POINT</span><br/><span data-bind="text: startingPoint().address"></span></h1>
+        </div>
+        <div class="display__notice" data-bind="html: notice, visible: notice"></div>
       </div>
       <div class="display__body">
-        <div class="data" data-bind="visible: !results.start()">
+        <div class="data">
           <div class="data__find" data-bind="visible: (startingPoint && lunchList() == false)">
             <h4 class="data__h4">You’ve got FIVE chances to let us find the perfect lunch spot for you.</h4>
             <button class="btn btn--find" data-bind="click: getLunchData">FIND LUNCH!</button>
           </div>
-          <div class="data__list" data-bind="visible: lunchList().length > 0, click: dataRemove, clickBubble: false">
+          <div class="data__list" data-bind="visible: (lunchList().length > 0 && !results.start()), click: dataRemove, clickBubble: false">
             <div class="data__head">
               <h2 class="data__h2">LUNCH OPTIONS!</h2>
             </div>
@@ -69,32 +72,30 @@
               <button class="btn btn--perfect" data-bind="click: $parent.pickSpot">Perfect! That’s the spot!</button>
             </div>
           </div>
+          <div class="data__results" data-bind="visible: results.start(), click: dataRemove, clickBubble: false">
+            <div class="results__head">
+              <h2 class="results__h2">FULL SUCCESS!</h2>
+            </div>
+            <div class="results__body" data-bind="with: results">
+              <h3 class="results__h3"><span class="red--d">A.</span> <span data-bind="text: start"></span></h3>
+              <p class="results__p pink--l"><i class="fas fa-arrow-down"></i><i class="fas fa-arrow-down"></i><i class="fas fa-arrow-down"></i></p>
+              <h3 class="results__h3"><span class="red--d">B.</span> <span class="blue--l" data-bind="text: lunch.name"></span></h3>
+              <h3 class="results__h3">@ <span data-bind="text: lunch.address"></span></h3>
+              <h4 class="results__h4 pink--l"><span data-bind="text: $parent.results.mode"></span> DIRECTIONS</h4>
+              <p class="results__p">Travel time: <span data-bind="text: time"></span></p>
+              <ol class="results__ol" data-bind="foreach: directions">
+                <li class="results__li" data-bind="html: $data"></li>
+              </ol>
+            </div>
+            <div class="results__buttons">
+              <button class="btn btn--directions btn--directions--l" value="DRIVING" data-bind="click: updateDirections, clickBubble: false">DRIVING</button>
+              <button class="btn btn--directions btn--directions--r" value="WALKING" data-bind="click: updateDirections, clickBubble: false">WALKING</button>
+            </div>
+          </div>
         </div>
         <div class="view" data-bind="">
           <div class="view__map">
             <div id="map"></div>
-          </div>
-          <div class="view__notice center" data-bind="html: notice">
-          </div>
-        </div>
-        <div class="results" data-bind="visible: results.start(), click: dataRemove, clickBubble: false">
-          <div class="results__head">
-            <h2 class="results__h2">FULL SUCCESS!</h2>
-          </div>
-          <div class="results__body" data-bind="with: results">
-            <h3 class="results__h3"><span class="red--d">A.</span> <span data-bind="text: start"></span></h3>
-            <p class="results__p pink--l"><i class="fas fa-arrow-down"></i><i class="fas fa-arrow-down"></i><i class="fas fa-arrow-down"></i></p>
-            <h3 class="results__h3"><span class="red--d">B.</span> <span class="blue--l" data-bind="text: lunch.name"></span></h3>
-            <h3 class="results__h3">@ <span data-bind="text: lunch.address"></span></h3>
-            <h4 class="results__h4 pink--l"><span data-bind="text: $parent.results.mode"></span> DIRECTIONS</h4>
-            <p class="results__p">Travel time: <span data-bind="text: time"></span></p>
-            <ol class="results__ol" data-bind="foreach: directions">
-              <li class="results__li" data-bind="html: $data"></li>
-            </ol>
-          </div>
-          <div class="results__buttons">
-            <button class="btn btn--directions btn--directions--l" value="DRIVING" data-bind="click: updateDirections, clickBubble: false">DRIVING</button>
-            <button class="btn btn--directions btn--directions--r" value="WALKING" data-bind="click: updateDirections, clickBubble: false">WALKING</button>
           </div>
         </div>
       </div>
