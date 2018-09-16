@@ -8,7 +8,7 @@
     <link href="https://fonts.googleapis.com/css?family=Miriam+Libre" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
   </head>
-  <body>
+  <body class="body" data-bind="">
     <div class="cold_opening" data-bind="visible: startingPoint() == false">
       <div class="cold_opening__head">
         <h1 class="cold_opening__h1">lunchido!</h1>
@@ -27,9 +27,10 @@
       <h2 class="waiting__h2">Thank you! Our data nerds are doing their thing.</h2>
       <p class="waiting__p">Hang on a minute.</p>
     </div>
-    <div class="display" data-bind="visible: startingPoint">
+    <div class="display" data-bind="visible: startingPoint, click: dataRemove">
       <div class="display__head">
-        <h1 class="display__h1"><span class="pink--l">STARTING POINT:</span> <span data-bind="text: startingPoint().address"></span></h1>
+        <div class="menu" data-bind="click: dataToggle, clickBubble: false"><i class="fas fa-chevron-circle-down"></i></div>
+        <h1 class="display__h1"><span class="pink--l">STARTING POINT</span><br/><span data-bind="text: startingPoint().address"></span></h1>
       </div>
       <div class="display__body">
         <div class="data" data-bind="visible: !results.start()">
@@ -37,7 +38,7 @@
             <h4 class="data__h4">You’ve got FIVE chances to let us find the perfect lunch spot for you.</h4>
             <button class="btn btn--find" data-bind="click: getLunchData">FIND LUNCH!</button>
           </div>
-          <div class="data__list" data-bind="visible: lunchList().length > 0">
+          <div class="data__list" data-bind="visible: lunchList().length > 0, click: dataRemove, clickBubble: false">
             <div class="data__head">
               <h2 class="data__h2">LUNCH OPTIONS!</h2>
             </div>
@@ -76,7 +77,7 @@
           <div class="view__notice center" data-bind="html: notice">
           </div>
         </div>
-        <div class="results" data-bind="visible: results.start()">
+        <div class="results" data-bind="visible: results.start(), click: dataRemove, clickBubble: false">
           <div class="results__head">
             <h2 class="results__h2">FULL SUCCESS!</h2>
           </div>
@@ -92,16 +93,17 @@
             </ol>
           </div>
           <div class="results__buttons">
-            <button class="btn btn--directions btn--directions--l" value="DRIVING" data-bind="click: updateDirections">DRIVING</button>
-            <button class="btn btn--directions btn--directions--r" value="WALKING" data-bind="click: updateDirections">WALKING</button>
+            <button class="btn btn--directions btn--directions--l" value="DRIVING" data-bind="click: updateDirections, clickBubble: false">DRIVING</button>
+            <button class="btn btn--directions btn--directions--r" value="WALKING" data-bind="click: updateDirections, clickBubble: false">WALKING</button>
           </div>
         </div>
       </div>
     </div>
     <script src="https://code.jquery.com/jquery-3.3.1.js" integrity="sha256-2Kok7MbOyxpgUVvAk/HJ2jigOSYS2auK4Pfzbm7uH60=" crossorigin="anonymous"></script>
     <script src="js/knockout-3.4.2.js"></script>
-    <script src="js/maps.js"></script>
-    <script src="js/app.js"></script>
+    <!-- <script src="js/maps.js"></script> -->
+    <!-- <script src="js/app.js"></script> -->
+    <script src="./bundle.js"></script>
     <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyB9tLfWcJ4O3yVu3OW9l9b9DNHO0-fLyfo&callback=initMap">
     </script>
   </body>
