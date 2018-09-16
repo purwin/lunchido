@@ -264,6 +264,7 @@ margin-bottom: 0;
   z-index: 1;
   color: #63cdda;
   font-size: 2rem;
+  cursor: pointer;
 }
 
 .display__menu:hover {
