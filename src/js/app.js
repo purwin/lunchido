@@ -1,8 +1,6 @@
 // Knockout.js file
+
 import * as googmaps from "./maps";
-
-// require('./knockout-3.4.2.js');
-
 import ko from './knockout-3.4.2.js';
 
 var ViewModel = function() {
@@ -15,6 +13,8 @@ var ViewModel = function() {
     client_id: "RGJIQWJAUURIHR1SSJUTQFKQYXL3RFO34MFEWPBBAFUALZ2B",
     client_secret: "2CA2UTR0RRAGVLIDRSUL20XK4YHY554Z0UKYYZCQ0IVLJKCA"
   }
+
+  this.searching = ko.observable(false);
 
   // Lunch starting point observable
   this.startingPoint = ko.observable(false);
@@ -30,7 +30,7 @@ var ViewModel = function() {
   // Array of potential lunch options pulled from the FourSquare API
   this.lunchSearch = ko.observableArray([]);
 
-// Lunch options observable array (max = this.excludeParams().count)
+  // Lunch options observable array (max = this.excludeParams().count)
   this.lunchList = ko.observableArray([]);
 
   // Manual search input
@@ -59,7 +59,7 @@ var ViewModel = function() {
   // Function to use geolocation for Google Maps starting point
   this.geoLocater = function() {
     // Set startingPoint to null
-    // self.startingPoint(null);
+    self.searching(true);
     // Get lat, lng, and address from Google Maps geolocate function
     googmaps.geolocateMe(function(data) {
       console.log("geoLocater: starting point: " + JSON.stringify(data));
@@ -71,7 +71,7 @@ var ViewModel = function() {
   // Function to manually search for Google Maps starting point
   this.manualLocater = function() {
     // Set startingPoint to null
-    // self.startingPoint(null);
+    self.searching(true);
     // Get lat, lng, and address from Google Maps manual locate function
     googmaps.manualLocateMe(this.manualSearch(), function(data) {
       console.log("manualLocater: starting point: " + JSON.stringify(data));
