@@ -1,5 +1,9 @@
 // Knockout.js file
+import * as googmaps from "./maps";
 
+// require('./knockout-3.4.2.js');
+
+import ko from './knockout-3.4.2.js';
 
 var ViewModel = function() {
 
@@ -57,7 +61,7 @@ var ViewModel = function() {
     // Set startingPoint to null
     // self.startingPoint(null);
     // Get lat, lng, and address from Google Maps geolocate function
-    geolocateMe(function(data) {
+    googmaps.geolocateMe(function(data) {
       console.log("geoLocater: starting point: " + JSON.stringify(data));
       // Set starting point details to returned object
       self.startingPoint(data);
@@ -69,7 +73,7 @@ var ViewModel = function() {
     // Set startingPoint to null
     // self.startingPoint(null);
     // Get lat, lng, and address from Google Maps manual locate function
-    manualLocateMe(this.manualSearch(), function(data) {
+    googmaps.manualLocateMe(this.manualSearch(), function(data) {
       console.log("manualLocater: starting point: " + JSON.stringify(data));
       // Set starting point details to returned object
       self.startingPoint(data);
@@ -81,7 +85,7 @@ var ViewModel = function() {
     // set current lunch item to clicked item
     self.currentSpot(selected);
     // Run map function to show relevant marker and info window
-    selectLunch(selected);
+    googmaps.selectLunch(selected);
   };
 
   // Function to pull lunch options from FourSquare API
@@ -170,11 +174,12 @@ var ViewModel = function() {
         lunchItem.price = data.response.venue.price.tier;
         console.log("checkPrice: " + lunchItem.name + " price " + lunchItem.price + " <= " + self.excludeParams().price);
         // Call Google Maps distance function
-        getDistance(self.startingPoint(), lunchItem, function(data) {
+        googmaps.getDistance(self.startingPoint(), lunchItem, function(data) {
           // Store distance
           lunchItem.distance = data;
           // If distance <= current max distance...
           if ((self.excludeParams().distance == null) || (lunchItem.distance <= self.excludeParams().distance)) {
+            console.log("checkPrice: " + lunchItem.name + " is good: " + lunchItem.distance + "!");
             // Add spot to lunch suggestion list
             self.pushOption(lunchItem);
           } else {
@@ -199,6 +204,7 @@ var ViewModel = function() {
   // Function to display $ icon in place of numbered price item
   this.priceIcon = function(selected) {
     var x = "";
+    var i;
     for (i = 0; i < parseInt(selected.price); i++) {
       x += "$";
     }
@@ -212,9 +218,13 @@ var ViewModel = function() {
     // Add lunch spot to option list
     self.lunchList.push(lunchItem);
     // Run create map marker function
-    addLunch(lunchItem);
+    googmaps.addLunch(lunchItem);
     // Run select lunch spot function
     self.selectSpot(lunchItem);
+    // If data__list not active, display list for mobile devices
+    if (document.querySelector(".data__list").classList.contains("menu__active") == false) {
+      self.dataToggle();
+    }
   };
 
   // Funtion to filter out lunch spot types
@@ -284,9 +294,14 @@ var ViewModel = function() {
 
   // Function run when winning lunchItem is chosen
   this.pickSpot = function(selected) {
+    self.dataToggle();
     console.log("Place Chosen: " + selected.name);
+    // If distance is greater than 1 mile, default directions to DRIVING
+    if (selected.distance > 1609) {
+      self.results.mode("DRIVING");
+    }
     // Call function to display Google Maps driving directions
-    getDirections(self.startingPoint(), selected, self.results.mode(), function(data) {
+    googmaps.getDirections(self.startingPoint(), selected, self.results.mode(), function(data) {
       // Set results observable start name
       self.results.start(self.startingPoint().address);
       // Set results observable lunch spot info
@@ -300,15 +315,52 @@ var ViewModel = function() {
       })
       // Clear notice observable
       self.notice('<h3 class="view__h3 center">Great choice!</h3>');
+      // If results not active, display list for mobile devices
+      if (document.querySelector(".data__results").classList.contains("menu__active") == false) {
+        self.dataToggle();
+      }
     });
   };
 
+  // Function to update directions based on mode imput (DRIVING/WALKING)
   this.updateDirections = function(data, event) {
     // Update directions mode
     if (event.target.value != self.results.mode()) {
       self.results.mode(event.target.value);
       self.results.directions.removeAll()
       self.pickSpot(self.currentSpot());
+    }
+  }
+
+  // Function to toggle display of data/results list for mobile
+  this.dataToggle = function() {
+    var select;
+    // if no results yet...
+    if (!self.results.start()) {
+      // toggle hidden class for data
+      select = document.querySelector(".data__list");
+    } else {
+      // toggle hidden class for results
+      select = document.querySelector(".data__results");
+    }
+    // Toggle .menu__active class from data list
+    select.classList.toggle("menu__active");
+  }
+
+  // Function to remove display of data/results list for mobile
+  this.dataRemove = function(data, event) {
+    var select;
+    // If element selected is not an active list, hide list
+    if (event.currentTarget.classList.contains("menu__active") == false) {
+      // If no results yet...
+      if (!self.results.start()) {
+        // remove active class for data
+        select = document.querySelector(".data__list");
+      } else {
+        // toggle hidden class for results
+        select = document.querySelector(".data__results");
+      }
+      select.classList.remove("menu__active");
     }
   }
 
