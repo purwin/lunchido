@@ -115,7 +115,7 @@ var ViewModel = function() {
             lng: item.venue.location.lng,
           },
           name: item.venue.name,
-          address: item.venue.location.address
+          address: item.venue.location.formattedAddress.join(', ')
           });
       });
       // Run function to add lunch option to list
