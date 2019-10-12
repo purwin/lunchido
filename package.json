@@ -1,0 +1,24 @@
+{
+  "name": "lunchido",
+  "version": "1.0.0",
+  "description": "single-page lunch finding web app",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "webpack-build": "webpack ./src/js/app.js -o bundle.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/purwin/lunchido.git"
+  },
+  "author": "mike purwin",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/purwin/lunchido/issues"
+  },
+  "homepage": "https://github.com/purwin/lunchido#readme",
+  "devDependencies": {
+    "webpack": "^4.19.0",
+    "webpack-cli": "^3.1.2"
+  }
+}
