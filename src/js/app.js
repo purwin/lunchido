@@ -62,7 +62,6 @@ var ViewModel = function() {
     self.searching(true);
     // Get lat, lng, and address from Google Maps geolocate function
     googmaps.geolocateMe(function(data) {
-      console.log("geoLocater: starting point: " + JSON.stringify(data));
       // Set starting point details to returned object
       self.startingPoint(data);
     });
@@ -74,7 +73,6 @@ var ViewModel = function() {
     self.searching(true);
     // Get lat, lng, and address from Google Maps manual locate function
     googmaps.manualLocateMe(this.manualSearch(), function(data) {
-      console.log("manualLocater: starting point: " + JSON.stringify(data));
       // Set starting point details to returned object
       self.startingPoint(data);
     });
@@ -91,7 +89,6 @@ var ViewModel = function() {
   // Function to pull lunch options from FourSquare API
   this.getLunchData = function() {
     // JSON request to get a list of lunch options
-    console.log("Searching " + self.startingPoint().lat + ", " + self.startingPoint().lng);
     $.getJSON( self.fourSquareAPI.url + "explore", {
       // Pull relevant data from the API
       client_id: self.fourSquareAPI.client_id,
@@ -140,7 +137,6 @@ var ViewModel = function() {
       // Pop random item from data list
       // var lunchItem = self.lunchSearch.splice(Math.floor(Math.random() * self.lunchSearch().length), 1)[0];
       self.checkPrice();
-
     // Notify user if they maxed-out their options
     }
     else {
@@ -172,18 +168,15 @@ var ViewModel = function() {
       if (data.response.venue.price.tier <= self.excludeParams().price) {
         // Store price
         lunchItem.price = data.response.venue.price.tier;
-        console.log("checkPrice: " + lunchItem.name + " price " + lunchItem.price + " <= " + self.excludeParams().price);
         // Call Google Maps distance function
         googmaps.getDistance(self.startingPoint(), lunchItem, function(data) {
           // Store distance
           lunchItem.distance = data;
           // If distance <= current max distance...
           if ((self.excludeParams().distance == null) || (lunchItem.distance <= self.excludeParams().distance)) {
-            console.log("checkPrice: " + lunchItem.name + " is good: " + lunchItem.distance + "!");
             // Add spot to lunch suggestion list
             self.pushOption(lunchItem);
           } else {
-            console.log("checkPrice: " + lunchItem.name + " distance fails. Recursion time.");
             // ...otherwise call function again
             self.checkPrice();
           }
@@ -191,13 +184,12 @@ var ViewModel = function() {
       }
       // ...otherwise call function again
       else {
-        console.log("checkPrice: " + lunchItem.name + " price fails. Recursion time.");
         self.checkPrice();
       }
     })
     .fail(function(jqxhr, textStatus, error) {
       var err = textStatus + ", " + error;
-      window.log( "Request Failed: " + err );
+      window.alert( "Request Failed: " + err );
     });
   };
 
@@ -252,7 +244,6 @@ var ViewModel = function() {
       else {
         // Update max price to < selected spot
         self.excludeParams().price = (priceCheck > 1) ? priceCheck - 1 : 1;
-        console.log("New max price: " + self.excludeParams().price);
         self.notice('<h3 class="view__h3">Got it! We\'ll search for cheaper places.</h3>');
       }
     }
@@ -265,7 +256,6 @@ var ViewModel = function() {
     // if selected place's food type is not yet on the exlusions list, add it
     if (!self.excludeParams().types.includes(selected.type)) {
       self.excludeParams().types.push(selected.type);
-      console.log("Updated food types to exclude: " + self.excludeParams().types);
       self.notice('<h3 class="view__h3">Noted! We\'ll avoid ' + selected.type + ' food options.</h3>');
       // Update data list to filter new exclusion
       self.filterParams();
@@ -281,7 +271,6 @@ var ViewModel = function() {
   this.updateDistance = function(selected) {
     // If max distance is not yet set, or if selected place's distance is closer than current max...
     if ((self.excludeParams().distance == null) || (selected.distance < self.excludeParams().distance)) {
-      console.log("updateDistance; old max: " + self.excludeParams().distance + "; new max: " + selected.distance);
       // Update max distance
       self.excludeParams().distance = selected.distance;
       self.notice('<h3 class="view__h3">Understood. We\'ll look for closer lunch spots.</h3>');
@@ -295,7 +284,6 @@ var ViewModel = function() {
   // Function run when winning lunchItem is chosen
   this.pickSpot = function(selected) {
     self.dataToggle();
-    console.log("Place Chosen: " + selected.name);
     // If distance is greater than 1 mile, default directions to DRIVING
     if (self.results.mode() == false) {
       if (selected.distance > 1609) {
